@@ -18,7 +18,8 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 WAV = "8149f6b0-98f6-5db9-b78f-408fbbb8ef88"
 
 [extras]
+SignalAnalysis = "df1fea92-c066-49dd-8b36-eace3378ea47"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["SignalAnalysis", "Test"]

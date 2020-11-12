@@ -20,6 +20,7 @@ export
     vec2string,
     string2vec,
     wavreadall,
+    pressure,
 
     # preprocess
     removedc_whiten_lpf_resample,
