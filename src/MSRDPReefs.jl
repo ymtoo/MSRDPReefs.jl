@@ -9,6 +9,7 @@ using FindPeaks1D
 using MemorylessNonlinearities
 using ProgressMeter
 using Requires
+using SignalAnalysis
 using Statistics
 using StatsBase
 using WAV
