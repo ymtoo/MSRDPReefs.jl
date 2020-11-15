@@ -55,7 +55,7 @@ function load_peakdetect(wavpath;
 #        data[i,:] = [startind, stopind, sc.s[pkindices[i],1]]
     end
 #    isempty(startinds) ? nothing : [site, wavpath, vec2string(startinds), vec2string(stopinds), vec2string(pks)]
-    isempty(startinds) ? nothing : [site, wavpath, savepaths, datetimes, startinds, stopinds, pks]
+    npeaks == 0 ? nothing : [site, wavpath, savepaths, datetimes, startinds, stopinds, pks]
 end
 function findepisodic(f, wavpaths::AbstractVector{String}; map=map, showprogress=true)
     # site = split.(path, "/")[end]
@@ -75,8 +75,8 @@ function findepisodic(f, wavpaths::AbstractVector{String}; map=map, showprogress
                       stopind=Int[],
                       score=Float64[])
     for data in vdata
-        for (savepath, datetime, startind, stopind, pk) in zip(data[3], data[4], data[5], data[6], data[7])
-            if data !== nothing
+        if data !== nothing
+            for (savepath, datetime, startind, stopind, pk) in zip(data[3], data[4], data[5], data[6], data[7])
                 push!(epidf.site, data[1])
                 push!(epidf.wavpath, data[2])
                 push!(epidf.savepath, savepath)
