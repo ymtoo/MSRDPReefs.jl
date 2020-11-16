@@ -2,9 +2,15 @@ using MSRDPReefs
 #import MSRDPReefs: getlogpaths, Metadata, moonphase
 using DataFrames, Dates, SignalAnalysis, Test, WAV
 
+DTRANGES = Dict(
+    "site-1" => [(DateTime(2020, 1, 31, 11, 50, 0), DateTime(2020, 2, 1, 0, 6, 0))],
+    "site-2" => [(DateTime(2020, 1, 31, 11, 50, 0), DateTime(2020, 2, 1, 0, 6, 0))]
+)
+
 @testset "Metadata" begin
     sitepaths = ["./recordings/site-1", "./recordings/site-2"]
     logpaths = ["./recordings/site-1/2020-01/LOG.CSV", "./recordings/site-2/2020-01/LOG.CSV"]
+
     dtranges = [(DateTime(2019, 6, 1, 0, 0, 0), DateTime(2020, 4, 30, 23, 59, 59))]
     for (sitepath, logpath) in zip(sitepaths, logpaths)
         @test getlogpaths(sitepath, dtranges)[1] == logpath
@@ -30,7 +36,6 @@ using DataFrames, Dates, SignalAnalysis, Test, WAV
         @test mdata.df[:, :greenlight] == green
         @test mdata.df[:, :bluelight] == blue
         @test mdata.df[:, :moonphase] == mp
-#        @test mdata.df[:, :light] == lightintensity
     end
 end
 

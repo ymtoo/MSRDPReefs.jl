@@ -85,6 +85,9 @@ function Metadata(path::AbstractString, dtranges::AbstractVector{Tuple{DateTime,
     end
     Metadata(path, site, dtranges, df)
 end
+function Metadata(path::AbstractString, index::Integer)
+    Metadata(path, SITEDTRANGES[split(path, "/")[end]][index:index])
+end
 
 function getlogpaths(path::AbstractString, dtranges::AbstractVector{Tuple{DateTime, DateTime}})
     logpaths = Vector{String}()
