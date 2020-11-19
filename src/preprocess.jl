@@ -8,6 +8,6 @@ function removedc_whiten_lpf_resample(x::AbstractVector{T},
     x = MemorylessNonlinearities.filt(CauchyNL(1 * σ), x)
 #    d = AlphaStableDistributions.fit(SymmetricAlphaStable, x)
 #    x = MemorylessNonlinearities.filt(SαS(d.α, d.scale, d.location), x)
-    bpf = digitalfilter(Bandpass(10, lpfreq; fs=fs), FIRWindow(hanning(8191)))
-    resample(filtfilt(bpf, x), rate)
+    lpf = digitalfilter(Lowpass(lpfreq; fs=fs), FIRWindow(hanning(127)))
+    resample(filtfilt(lpf, x), rate)
 end

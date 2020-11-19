@@ -47,7 +47,7 @@ function load_peakdetect(wavpath;
         stopinds[i] = sc.indices[trunc(Int, properties["rightips"][i])]
         pks[i] = sc.s[pkindices[i],1]
         if savedir !== nothing
-            filename = split(wavpath, "/")[end][1:end-4] * "-epi-$(i).wav"
+            filename = split(wavpath, "/")[end][1:end-4] * "-epi-$(lpad(i, 3, "0")).wav"
             savepaths[i] = joinpath(savedir, filename)
             episignal = normalize(y[startinds[i]:stopinds[i]], -0.5, 0.5)
             wavwrite(episignal .- mean(episignal), savepaths[i]; Fs=fs)
