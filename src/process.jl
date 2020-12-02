@@ -20,18 +20,16 @@ function _getfeatures(wavpath::AbstractString,
                       gs::Vector{T}, 
                       sensitivity, 
                       gain) where {T<:Function}
-    println(wavpath)
     try
         x, fs = wavread(wavpath)
         x = vec(x)
         x = removedc(x .- median(x))
     catch
         @warn "Unable to read $(wavpath)"
-        return [missing]#[missing for g in gs]
+        return [missing]
     end
     x = pressure(x, sensitivity, gain)
     features = [g(x) for g in gs] 
-#    println(features)
     vcat(features...)
 end
 """
@@ -63,12 +61,6 @@ function getfeatures!(feadf::AbstractDataFrame,
         xs[idx] = fill(missing, l)
     end
     X = hcat(xs...)
-    # X = Matrix{Union{Missing,typeof(xtmp)}}(undef, length(xtmp), length(xs))
-    # println(X)
-    # println(xs)
-    # for (i, x) in enumerate(xs)
-    #     X[:,i] .= x
-    # end
     feadftmp = _createtempdataframe(mdata)                
     for (i, feasymbol) in enumerate(feasymbols)
         insertcols!(feadftmp, i+2, feasymbol => X[i,:])
