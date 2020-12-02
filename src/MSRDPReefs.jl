@@ -24,8 +24,11 @@ export
     wavreadall,
     pressure,
 
-    # preprocess
+    # process
     removedc_whiten_lpf_resample,
+    getfeatures,
+    getfeatures!,
+    getimpulsestats,
 
     #msrdpreefs
     acousticsamplingrate,
@@ -45,8 +48,8 @@ export
     saveepisodictowav_wavread
 
 include("utils.jl")
-include("preprocess.jl")
 include("msrdpreefs.jl")
+include("process.jl")
 include("episodic.jl")
 
 function __init__()
