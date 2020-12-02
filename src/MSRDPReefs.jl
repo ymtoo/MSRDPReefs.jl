@@ -29,6 +29,8 @@ export
     getfeatures,
     getfeatures!,
     getimpulsestats,
+    getentropy,
+    getzerocrossingrate,
 
     #msrdpreefs
     acousticsamplingrate,
