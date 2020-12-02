@@ -18,6 +18,10 @@ DTRANGES = Dict(
 
     root = "./recordings"
     dirs = readdir(root)
+    sensitivities = [[-179.80,-179.80,-179.80,-179.80],
+                     [-179.00,-179.00,-179.00,-179.00]]
+    gains = [[16.77, 16.77, 16.77, 16.77],
+             [16.72, 16.72, 16.72, 16.72]]
     paths = [joinpath(root, dir) for dir in dirs]
     sites = ["site-1", "site-2"]
     depth = [0.06, 0.06, 0.06, 0.02]
@@ -27,9 +31,11 @@ DTRANGES = Dict(
     green = [3801.0, 733.0, 732.0, 701.0]
     blue = [3376.0, 712.0, 710.0, 601.0]
     mp = [3, 3, 3, 3]
-    for (path, site) in zip(paths, sites)
+    for (path, site, sensitivity, gain) in zip(paths, sites, sensitivities, gains)
         mdata = Metadata(path, dtranges)
         @test mdata.site == site
+        @test mdata.df[:, :sensitivity] == sensitivity
+        @test mdata.df[:, :gain] == gain
         @test mdata.df[:, :depth] == depth
         @test mdata.df[:, :temperature] == temperature
         @test mdata.df[:, :redlight] == red

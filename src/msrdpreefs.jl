@@ -36,6 +36,8 @@ const SITEDTRANGES = Dict(
     )
 
 const COLUMNNAMES = ["datetime", 
+                     "sensitivity",
+                     "gain",
                      "wavpath", 
                      "battery", 
                      "depth", 
@@ -45,16 +47,15 @@ const COLUMNNAMES = ["datetime",
                      "bluelight", 
                      "moonphase"]
 const COLUMNTYPES = [DateTime[], 
+                     Float64[],
+                     Float64[],
                      String[], 
-                     Union{Missing, 
-                     Float64}[], 
-                     Union{Missing, 
-                     Float64}[], 
-                     Union{Missing, 
-                     Float64}[], 
-                     Union{Missing, Float64}[], 
-                     Union{Missing, Float64}[], 
-                     Union{Missing, Float64}[], 
+                     Union{Missing,Float64}[], 
+                     Union{Missing,Float64}[], 
+                     Union{Missing,Float64}[], 
+                     Union{Missing,Float64}[], 
+                     Union{Missing,Float64}[], 
+                     Union{Missing,Float64}[], 
                      Int64[]]
 
 const WAVFILETIMELENGTH = Minute(5)
@@ -76,14 +77,15 @@ function Metadata(path::AbstractString, dtranges::AbstractVector{Tuple{DateTime,
     columns = [Symbol(columnname) => columntype for (columnname, columntype) in zip(COLUMNNAMES, COLUMNTYPES)]
     df = DataFrame(columns)
     for (logpath, dtrange) in zip(logpaths, dtranges)
-        dftmp = CSV.File(logpath; header=3, types=Dict("Timestamp" => String, 
-                                                       " Batt (V)" => Union{Missing, Float64}, 
-                                                       " Depth(M)" => Union{Missing, Float64}, 
-                                                       " Temp (degC)" => Union{Missing, Float64}, 
-                                                       " Red " => Union{Missing, Float64}, 
-                                                       " Green " => Union{Missing, Float64}, 
-                                                       " Blue " => Union{Missing, Float64})) |> DataFrame
-        revisedf!(dftmp, logpath, dtrange)
+        dftmp = DataFrame(CSV.File(logpath; header=3, types=Dict("Timestamp" => String, 
+                                                                 " Batt (V)" => Union{Missing, Float64}, 
+                                                                 " Depth(M)" => Union{Missing, Float64}, 
+                                                                 " Temp (degC)" => Union{Missing, Float64}, 
+                                                                 " Red " => Union{Missing, Float64}, 
+                                                                 " Green " => Union{Missing, Float64}, 
+                                                                 " Blue " => Union{Missing, Float64})))
+        acousticsensor = DataFrame(CSV.File(logpath; header=0, delim=" ", limit=2))[:,2]
+        revisedf!(dftmp, logpath, dtrange, acousticsensor)
         append!(df, dftmp)
     end
     Metadata(path, site, dtranges, df)
@@ -109,7 +111,7 @@ end
 """
 Add DateTime and WAV path columns to the DataFrame. Combine Red, Green and Blue into RGB(Red, Green, Blue). Rename the columns. Remove rows which are not in the datetime range.
 """
-function revisedf!(df, logpath, dtrange)
+function revisedf!(df, logpath, dtrange, acousticsensor)
 #    colnames = names(df)#["Datetime", "WAV path", "Batt (V)", "Depth (m)", "Temp (degC)", "Light Intensity"]
     delcolnames = [" Red ", " Green ", " Blue "]
     patharray = split(logpath, "/")
@@ -117,11 +119,13 @@ function revisedf!(df, logpath, dtrange)
     pathtmp = rsplit(logpath, "/"; limit=2)[1]
     numrows = size(df, 1)
     insertcols!(df, 1, :datetime => DateTime(2019, 6, 1, 0, 0, 0))
-    insertcols!(df, 6, :redlight => Vector{Union{Missing,Float64}}(undef, numrows))
-    insertcols!(df, 7, :greenlight => Vector{Union{Missing,Float64}}(undef, numrows))
-    insertcols!(df, 8, :bluelight => Vector{Union{Missing,Float64}}(undef, numrows))
+    insertcols!(df, 2, :sensitivity => acousticsensor[1])
+    insertcols!(df, 3, :gain => acousticsensor[2])
+    insertcols!(df, 8, :redlight => Vector{Union{Missing,Float64}}(undef, numrows))
+    insertcols!(df, 9, :greenlight => Vector{Union{Missing,Float64}}(undef, numrows))
+    insertcols!(df, 10, :bluelight => Vector{Union{Missing,Float64}}(undef, numrows))
 #    insertcols!(df, 6, :light => RGB{Float64}(0.0, 0.0, 0.0))
-    insertcols!(df, 9, :moonphase => 0)
+    insertcols!(df, 11, :moonphase => 0)
     notindtrangerowindices = Int[]
     for i in 1:size(df, 1)
         wavfile = df[i, :Timestamp]
