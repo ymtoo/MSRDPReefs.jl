@@ -113,19 +113,3 @@ function whiten(x::AbstractVector{T},
     mag .-= γ * mean(mag; dims=2)
     istft(exp.(mag) .* exp.(im .* angle.(xstft)), n, noverlap; window=window) 
 end
-
-"""
-Convert the real signal `x` to an acoustic pressure signal in micropascal.
-"""
-function pressure(x::AbstractVector{T}, 
-                  sensitivity, 
-                  gain; 
-                  volt_params=nothing) where {T<:Real}
-    ν = 10 ^ (sensitivity/20)
-    G = 10 ^ (gain/20)
-    if volt_params !== nothing
-        nbits, vref = volt_params
-        x = x .* (vref / (2 ^ (nbits-1)))
-    end
-    x ./ (ν*G)
-end
