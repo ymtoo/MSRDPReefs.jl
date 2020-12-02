@@ -96,7 +96,7 @@ end
 
 function getlogpaths(path::AbstractString, dtranges::AbstractVector{Tuple{DateTime, DateTime}})
     logpaths = Vector{String}()
-    dirs = readdir(path)
+    dirs = [dir for dir in readdir(path) if dir[1] ∉ ['.', '@']]
     for dtrange in dtranges
         index = findall(x -> x ∈ trunc(dtrange[1], Month):Month(1):trunc(dtrange[2], Month), DateTime.(dirs, "yyyy-mm"))
         if length(index) == 1
