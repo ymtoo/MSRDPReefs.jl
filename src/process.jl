@@ -44,8 +44,10 @@ accordingly.
 
 See also: [`getfeatures`](@ref)
 """
+_createtempdataframe(mdata::Metadata) = DataFrame(Datetime=mdata.df[!,:datetime], Site=mdata.site)
+_createtempdataframe(mdata::MetadataAll) = DataFrame(Datetime=mdata.df[!,:datetime], Site=mdata.df[!,:site])
 function getfeatures!(feadf::AbstractDataFrame, 
-                      mdata::Metadata, 
+                      mdata::Union{Metadata,MetadataAll}, 
                       gs::Vector{T}, 
                       feasymbols::Vector{Symbol}; 
                       map=map) where {T<:Function}
@@ -67,7 +69,7 @@ function getfeatures!(feadf::AbstractDataFrame,
     # for (i, x) in enumerate(xs)
     #     X[:,i] .= x
     # end
-    feadftmp =  DataFrame(Datetime=mdata.df[!, :datetime], Site=mdata.site)                  
+    feadftmp = _createtempdataframe(mdata)                
     for (i, feasymbol) in enumerate(feasymbols)
         insertcols!(feadftmp, i+2, feasymbol => X[i,:])
     end
@@ -87,28 +89,12 @@ as `feasymbols`.
 
 See also: [`getfeatures!`](@ref)
 """
-function getfeatures(mdata::Metadata, 
+function getfeatures(mdata::Union{Metadata,MetadataAll}, 
                      gs::Vector{T}, 
                      feasymbols::Vector{Symbol}; 
                      map=map) where {T<:Function}
-    # numrows = size(mdata.df, 1)
-    # numfeas = length(feasymbols)
-    # X = map(x -> _getfeatures(x, gs, sensitivity, gain), wavpaths)
-    # X =  SharedArray{Float64,2}((numrows, numfeas))#Array{Union{DateTime, Float64, Int64}, 2}(undef, numrows, numfeas+1)#
-    # @showprogress "Computing..." @distributed for i in 1:numrows
-    #     p, fs = wavreadtopressure(mdata.df[i, :wavpath], sensitivity, gain)
-    #     xtmp = []
-    #     for g in gs
-    #         append!(xtmp, g(p))
-    #     end
-    #     X[i, :] = xtmp
-    # end
-    feadf = DataFrame(Datetime=mdata.df[!, :datetime], Site=mdata.site)
+    feadf = _createtempdataframe(mdata)
     getfeatures!(feadf, mdata, gs, feasymbols; map=map)
-    # for (i, feasymbol) in enumerate(feasymbols)
-    #     insertcols!(feadf, i+2, feasymbol => X.s[i, :])
-    # end
-    # feadf
 end
 
 function getimpulsestats(x) 
