@@ -26,9 +26,10 @@ function load_peakdetect(wavpath;
                padtype=:reflect,
                map=map,
                showprogress=false)
-    center = Statistics.median(sc.s[:,1])
-    height = center+k*mad(sc.s[:,1], center=center, normalize=false)
-    pkindices, properties = findpeaks1d(sc.s[:,1];
+    s = vec(sc.s)
+    center = Statistics.median(s)
+    height = center+k*mad(s, center=center, normalize=false)
+    pkindices, properties = findpeaks1d(s;
                                         height=height,
                                         width=width,
                                         distance=distance)

@@ -109,7 +109,9 @@ function getlogpaths(path::AbstractString, dtranges::AbstractVector{Tuple{DateTi
 end
 
 """
-Add DateTime and WAV path columns to the DataFrame. Combine Red, Green and Blue into RGB(Red, Green, Blue). Rename the columns. Remove rows which are not in the datetime range.
+Add DateTime and WAV path columns to the DataFrame. Combine Red, 
+Green and Blue into RGB(Red, Green, Blue). Rename the columns. Remove 
+rows which are not in the datetime range.
 """
 function revisedf!(df, logpath, dtrange, acousticsensor)
 #    colnames = names(df)#["Datetime", "WAV path", "Batt (V)", "Depth (m)", "Temp (degC)", "Light Intensity"]
@@ -165,7 +167,8 @@ struct MetadataAll
     df::AbstractDataFrame
 end
 
-function MetadataAll(paths::Vector{<:AbstractString}, dtrangesdict::Dict{String, Vector{Tuple{DateTime, DateTime}}}=SITEDTRANGES)
+function MetadataAll(paths::Vector{<:AbstractString}, 
+                     dtrangesdict::Dict{String, Vector{Tuple{DateTime, DateTime}}}=SITEDTRANGES)
     df = DataFrame()
     for path in paths
         site = split(path, "/")[end]
@@ -178,11 +181,13 @@ function MetadataAll(paths::Vector{<:AbstractString}, dtrangesdict::Dict{String,
 end
 
 """
-Show the data collection progress in percentage. 100 percent equals to one month of data.
+Show the data collection progress in percentage. 100 percent equals 
+to one month of data.
 
 # Examples:
 ```julia-repl
-julia> MSRDPReefs.Msrdpreefs.datacollectionprogress("/mnt/arl-nas-01/msrdp-reef-monitoring/recordings")
+julia> MSRDPReefs.Msrdpreefs.datacollectionprogress("/mnt/arl-nas-01/
+msrdp-reef-monitoring/recordings")
 ```
 """
 function datacollectionprogress(paths::AbstractVector{String})
