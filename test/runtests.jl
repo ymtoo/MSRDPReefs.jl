@@ -61,15 +61,6 @@ end
     dt = DateTime(2009, 1, 26)
     @test moonphase(dt) == 8#"waning crescent (decreasing from full)"
 
-    nbits = 16
-    vref = 1.0
-    xvolt = vref .* real(samples(cw(64, 1, 512)))
-    xbit = xvolt .* (2 ^ (nbits-1))
-    sensitivity = 0
-    gain = 0
-    p1 = pressure(xvolt, sensitivity, gain)
-    p2 = pressure(xbit, sensitivity, gain; volt_params=(nbits, vref))
-    @test p1 == p2 
 end
 
 @testset "datacollectionprogress" begin
