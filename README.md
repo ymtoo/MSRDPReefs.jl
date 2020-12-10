@@ -25,18 +25,18 @@ MetadataAll: Metadata describing all the collected data. The output is a Metadat
 datacollectionprogress: Estimate the progress of the data collection. The output is a DataFrame displaying percentages of the data colllected with respect to the sites and the deployments (D1, D2, D3, D4, D5, D6). Hundred percent denotes 30 days data collected.
 
 ## Usage
-```julia
+```julia-repl
 julia> using MSRDPReefs
 
-julia> root = "/mnt/arl-nas-01/msrdp-reef-monitoring/recordings"
+julia> rootpath = "/mnt/arl-nas-01/msrdp-reef-monitoring/recordings"
 
-julia> dirs = readdir(root)
+julia> dirs = readdir(rootpath)
 
-julia> paths = [joinpath(root, dir) for dir in dirs if dir ∉ ["Semakau-NE", "README.md"]]
+julia> parentpaths = [joinpath(root, dir) for dir in dirs if dir ∉ ["Semakau-NE", "README.md"]]
 
-julia> mdata = Metadata(paths[1])
+julia> mdata = Metadata(parentpaths[1])
 
-julia> mdataall = MetadataAll(paths)
+julia> mdataall = MetadataAll(parentpaths)
 
-julia> datacollectionprogress(root)
+julia> datacollectionprogress(rootpath)
 ```
