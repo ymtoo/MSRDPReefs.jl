@@ -45,7 +45,7 @@ export
     # episodic
     findepisodic,
     load_peakdetect,
-    countepisodic,
+    countepisodic
 
 include("utils.jl")
 include("msrdpreefs.jl")
