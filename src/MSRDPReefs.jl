@@ -44,10 +44,8 @@ export
 
     # episodic
     findepisodic,
-    LazyEpisodic,
     load_peakdetect,
     countepisodic,
-    saveepisodictowav_wavread
 
 include("utils.jl")
 include("msrdpreefs.jl")

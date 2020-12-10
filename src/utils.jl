@@ -71,45 +71,45 @@ function normalize(x::AbstractArray{T}, minval::T, maxval::T) where {T<:Real}
     minval .+ (maxval - minval) .* (x .- minimum(x)) ./ (maximum(x) .- minimum(x))
 end
 
-"""
-Inverse Short Time Fourier Transform.
-"""
-function istft(X::AbstractMatrix{Complex{T}}, 
-    n::Int, 
-    noverlap::Int; 
-    onesided::Bool=true, 
-    window::Union{Function,AbstractVector,Nothing}=nothing) where {T<:AbstractFloat}
-    (window === nothing) && (window = rect)
-    win, norm2 = Periodograms.compute_window(window, n)
+# """
+# Inverse Short Time Fourier Transform.
+# """
+# function istft(X::AbstractMatrix{Complex{T}}, 
+#     n::Int, 
+#     noverlap::Int; 
+#     onesided::Bool=true, 
+#     window::Union{Function,AbstractVector,Nothing}=nothing) where {T<:AbstractFloat}
+#     (window === nothing) && (window = rect)
+#     win, norm2 = Periodograms.compute_window(window, n)
 
-    nstep = n - noverlap
-    nseg = size(X, 2)
-    outputlength = n + (nseg-1) * nstep
+#     nstep = n - noverlap
+#     nseg = size(X, 2)
+#     outputlength = n + (nseg-1) * nstep
 
-    iX = onesided ? irfft(X, n, 1) : ifft(X, 1)
-    iX .*= win
-    x = zeros(eltype(iX), outputlength)
-    norm = zeros(T, outputlength)
-    for i = 1:nseg
-    x[1+(i-1)*nstep:n+(i-1)*nstep] += iX[:,i]
-    norm[1+(i-1)*nstep:n+(i-1)*nstep] += win .^ 2
-    end
+#     iX = onesided ? irfft(X, n, 1) : ifft(X, 1)
+#     iX .*= win
+#     x = zeros(eltype(iX), outputlength)
+#     norm = zeros(T, outputlength)
+#     for i = 1:nseg
+#     x[1+(i-1)*nstep:n+(i-1)*nstep] += iX[:,i]
+#     norm[1+(i-1)*nstep:n+(i-1)*nstep] += win .^ 2
+#     end
 
-    (sum(norm[n÷2:end-n÷2] .> 1e-10) != length(norm[n÷2:end-n÷2])) && (
-    @warn "NOLA condition failed, STFT may not be invertible")
-    x .*= nstep/norm2
-end
+#     (sum(norm[n÷2:end-n÷2] .> 1e-10) != length(norm[n÷2:end-n÷2])) && (
+#     @warn "NOLA condition failed, STFT may not be invertible")
+#     x .*= nstep/norm2
+# end
 
-"""
-Spectral whitening.
-"""
-function whiten(x::AbstractVector{T}, 
-     n::Int, 
-     noverlap::Int; 
-     window::Union{Function,AbstractVector,Nothing}=nothing,
-     γ=1) where {T}
-    xstft = stft(x, n, noverlap; window=window)
-    mag = log.(abs.(xstft .+ eps(T)))
-    mag .-= γ * mean(mag; dims=2)
-    istft(exp.(mag) .* exp.(im .* angle.(xstft)), n, noverlap; window=window) 
-end
+# """
+# Spectral whitening.
+# """
+# function whiten(x::AbstractVector{T}, 
+#      n::Int, 
+#      noverlap::Int; 
+#      window::Union{Function,AbstractVector,Nothing}=nothing,
+#      γ=1) where {T}
+#     xstft = stft(x, n, noverlap; window=window)
+#     mag = log.(abs.(xstft .+ eps(T)))
+#     mag .-= γ * mean(mag; dims=2)
+#     istft(exp.(mag) .* exp.(im .* angle.(xstft)), n, noverlap; window=window) 
+# end

@@ -149,54 +149,54 @@ Base.ndims(f::LazyEpisodic{T}) where {T} = 1
 Base.show(io::IO, f::LazyEpisodic{T,S,FS}) where {T,S,FS} = println(io, "LazyEpisodic{$(T), $(f.size), $(FS)}: ", f.df)
 
 
-"""
-Save episodic signals to WAV files
-"""
-function saveepisodictowav(x::AbstractVector, filename::String; fs::Real, isscale::Bool, site::String, savedir::String)
-    isscale && (x = 2 .* (x .- minimum(x)) ./ (maximum(x) .- minimum(x)) .- 1)
-    #savepath = joinpath(savedir, site * "-epi-$(lpad(index, 7, "0")).wav")
-    savepath = joinpath(saveepisodictowav, filename)
-    wavwrite(x, savepath; Fs=fs)
-end
-function saveepisodictowav_wavread(path::AbstractString, 
-                                   startinds::Integer, 
-                                   stopinds::Integer,
-                                   site::String;  
-                                   fs::Real,
-                                   isscale::Bool, 
-                                   savedir::String)
-    x, fstmp = wavread(path)
-    for (index, (startind, stopind)) in enumerate(zip(startinds, stopinds))
-        xt = lpf_downsample_removedc_zeromean(vec(x), fstmp)[startind:stopind]
-        spec = spectrogram(xt, 128, 64; fs=fs)
-        Px = spectrumflatten(log.(spec.power), size(spec.power,1); dims=1)
-        maxfreq = spec.freq[argmax(maximum(Px, dims=2))]
-        if maxfreq < 1200
-            lpf = digitalfilter(Lowpass(1200; fs=fs), FIRWindow(hanning(127)))
-            y = filtfilt(lpf, xt)
-        else
-            y = lowrankfilter(xt, Int(fs*0.01); lag=10)
-        end
-        filename = site * "-" * split(path, "/")[end][1:end-4] * "-epi-$(lpad(index, 2, "0")).wav"
-        saveepisodictowav(y, filename; fs=fs, isscale=isscale, site=site, savedir=savedir)
-    end
-end
-function saveepisodictowav_wavread(epidf::DataFrame;
-                                   fs::Real, 
-                                   isscale::Bool, 
-                                   map::Function,
-                                   savedir::String,
-                                   showprogress=true)
-    xs = []
-    for (i, row) in enumerate(eachrow(epidf))
-        push!(xs, [row[:wavpath],
-                   row[:startind],
-                   row[:stopind],
-                   row[:site]])
-    end
-    if showprogress
-        @showprogress map((args)->saveepisodictowav_wavread(args...; fs=fs, isscale=isscale, savedir=savedir), xs)
-    else
-        map((args)->saveepisodictowav_wavread(args...; fs=fs, isscale=isscale, savedir=savedir), xs)
-    end
-end
+# """
+# Save episodic signals to WAV files
+# """
+# function saveepisodictowav(x::AbstractVector, filename::String; fs::Real, isscale::Bool, site::String, savedir::String)
+#     isscale && (x = 2 .* (x .- minimum(x)) ./ (maximum(x) .- minimum(x)) .- 1)
+#     #savepath = joinpath(savedir, site * "-epi-$(lpad(index, 7, "0")).wav")
+#     savepath = joinpath(saveepisodictowav, filename)
+#     wavwrite(x, savepath; Fs=fs)
+# end
+# function saveepisodictowav_wavread(path::AbstractString, 
+#                                    startinds::Integer, 
+#                                    stopinds::Integer,
+#                                    site::String;  
+#                                    fs::Real,
+#                                    isscale::Bool, 
+#                                    savedir::String)
+#     x, fstmp = wavread(path)
+#     for (index, (startind, stopind)) in enumerate(zip(startinds, stopinds))
+#         xt = lpf_downsample_removedc_zeromean(vec(x), fstmp)[startind:stopind]
+#         spec = spectrogram(xt, 128, 64; fs=fs)
+#         Px = spectrumflatten(log.(spec.power), size(spec.power,1); dims=1)
+#         maxfreq = spec.freq[argmax(maximum(Px, dims=2))]
+#         if maxfreq < 1200
+#             lpf = digitalfilter(Lowpass(1200; fs=fs), FIRWindow(hanning(127)))
+#             y = filtfilt(lpf, xt)
+#         else
+#             y = lowrankfilter(xt, Int(fs*0.01); lag=10)
+#         end
+#         filename = site * "-" * split(path, "/")[end][1:end-4] * "-epi-$(lpad(index, 2, "0")).wav"
+#         saveepisodictowav(y, filename; fs=fs, isscale=isscale, site=site, savedir=savedir)
+#     end
+# end
+# function saveepisodictowav_wavread(epidf::DataFrame;
+#                                    fs::Real, 
+#                                    isscale::Bool, 
+#                                    map::Function,
+#                                    savedir::String,
+#                                    showprogress=true)
+#     xs = []
+#     for (i, row) in enumerate(eachrow(epidf))
+#         push!(xs, [row[:wavpath],
+#                    row[:startind],
+#                    row[:stopind],
+#                    row[:site]])
+#     end
+#     if showprogress
+#         @showprogress map((args)->saveepisodictowav_wavread(args...; fs=fs, isscale=isscale, savedir=savedir), xs)
+#     else
+#         map((args)->saveepisodictowav_wavread(args...; fs=fs, isscale=isscale, savedir=savedir), xs)
+#     end
+# end
