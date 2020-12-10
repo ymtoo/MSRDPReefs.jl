@@ -1,7 +1,7 @@
 name = "MSRDPReefs"
 uuid = "f913b824-c3ca-4577-85cf-6dffe8d38ef3"
 authors = ["ymtoo <tmstym@nus.edu.sg>"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 AcousticFeatures = "34fde6ae-8e37-4bf0-9e6b-7ac764dafb85"
