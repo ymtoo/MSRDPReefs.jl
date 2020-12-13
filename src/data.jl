@@ -1,4 +1,24 @@
-const DEFAULTDTRANGES = (DateTime(2019, 6, 1, 0, 0, 0), DateTime(2021, 4, 30, 23, 59, 59))
+#const DEFAULTDTRANGES = (DateTime(2019, 6, 1, 0, 0, 0), DateTime(2021, 4, 30, 23, 59, 59))
+
+"""
+Default datetime ranges for all the sites.
+
+# Example:
+```julia-repl
+julia> SITEDTRANGES
+Dict{String,Array{Tuple{Dates.DateTime,Dates.DateTime},1}} with 10 entries:
+  "TPT"        => [(DateTime("2019-11-22T11:30:00"), DateTime("2019-12-31T00:00:00")), (DateTime("202…
+  "RL-W"       => [(DateTime("2019-06-21T13:00:00"), DateTime("2019-07-15T11:00:00")), (DateTime("202…
+  "Semakau-SW" => [(DateTime("2019-10-11T14:00:00"), DateTime("2019-10-17T03:00:00")), (DateTime("202…
+  "SL-SE"      => [(DateTime("2019-10-11T12:00:00"), DateTime("2019-10-25T00:00:00")), (DateTime("202…
+  "Seringat"   => [(DateTime("2019-10-11T11:00:00"), DateTime("2019-11-08T00:00:00")), (DateTime("202…
+  "Kusu-NE"    => [(DateTime("2019-09-11T11:00:00"), DateTime("2019-10-11T10:30:00")), (DateTime("202…
+  "Hantu-W"    => [(DateTime("2019-09-11T13:00:00"), DateTime("2019-10-11T12:00:00")), (DateTime("202…
+  "Jong-S"     => [(DateTime("2019-09-11T12:30:00"), DateTime("2019-10-11T12:00:00")), (DateTime("202…
+  "Semakau-NW" => [(DateTime("2020-01-08T13:30:00"), DateTime("2020-02-16T00:00:00")), (DateTime("202…
+  "SD-NW"      => [(DateTime("2019-11-22T14:00:00"), DateTime("2019-12-02T11:30:00")), (DateTime("202…
+````
+"""
 const SITEDTRANGES = Dict(
     "Hantu-W" => [(DateTime(2019, 9, 11, 13, 0, 0), DateTime(2019, 10, 11, 12, 0, 0)), 
                   (DateTime(2020, 1, 8, 12, 30, 0), DateTime(2020, 2, 16, 0, 11, 31)),
@@ -28,7 +48,7 @@ const SITEDTRANGES = Dict(
     "TPT" => [(DateTime(2019, 11, 22, 11, 30, 0), DateTime(2019, 12, 31, 0, 0, 0)), 
               (DateTime(2020, 3, 19, 10, 40, 0), DateTime(2020, 4, 26, 22, 50, 0)),
               (DateTime(2020, 9, 11, 12, 0, 0), DateTime(2020, 10, 13, 9, 30, 0))]
-    )
+)
 
 const COLUMNNAMES = ["datetime", 
                      "sensitivity",
@@ -215,6 +235,38 @@ struct MetadataAll
     df::AbstractDataFrame
 end
 
+"""
+    MetadataAll(paths, dtrangesdict=SITEDTRANGES)
+
+Get MetadataAll describing the collected data at multiple sites. It composes 
+of paths `paths` to the data, datatime ranges `dtrangesdict` 
+and a DataFrame `df` for metadata:
+- datetime
+- sensitivity
+- gain
+- wavpath
+- battery
+- depth
+- temperature
+- red light
+- blue light
+- green light 
+
+# Example:
+```julia-repl
+julia> MetadataAll(["/home/arl/Data/reefwatch/recordings/Hantu-W","/home/arl/Data/reefwatch/recordings/RL-W"])
+Metadata of Hantu-W, RL-W
+5×12 DataFrame
+│ Row │ datetime            │ site     │ sensitivity │ gain    │ wavpath                                                                         │ battery  │ depth    │ temperature │ redlight │ greenlight │ bluelight │ moonphase │
+│     │ Dates.DateTime      │ SubStri… │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │
+├─────┼─────────────────────┼──────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┤
+│ 1   │ 2019-09-11T13:02:08 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │
+│ 2   │ 2019-09-11T13:07:07 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │
+│ 3   │ 2019-09-11T13:12:07 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │
+│ 4   │ 2019-09-11T13:17:07 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │
+│ 5   │ 2019-09-11T13:22:07 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │
+```
+"""
 function MetadataAll(paths::Vector{<:AbstractString}, 
                      dtrangesdict::Dict{String, Vector{Tuple{DateTime, DateTime}}}=SITEDTRANGES)
     df = DataFrame()
@@ -227,6 +279,7 @@ function MetadataAll(paths::Vector{<:AbstractString},
     end
     MetadataAll(paths, dtrangesdict, df)
 end
+
 """
     MetadataAll(path, dtrangesdict=SITEDTRANGES)
 
@@ -247,7 +300,7 @@ and a DataFrame `df` for metadata:
 # Example:
 ```julia-repl
 julia> MetadataAll("/home/arl/Data/reefwatch/recordings")
-Metadata of all the sites
+Metadata of Hantu-W, Jong-S, Kusu-NE, RL-W, SD-NW, SL-SE, Semakau-NW, Semakau-SW, Seringat, TPT
 5×12 DataFrame
 │ Row │ datetime            │ site     │ sensitivity │ gain    │ wavpath                                                                         │ battery  │ depth    │ temperature │ redlight │ greenlight │ bluelight │ moonphase │
 │     │ Dates.DateTime      │ SubStri… │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │
@@ -264,10 +317,10 @@ function MetadataAll(path::AbstractString, dtrangesdict::Dict{String, Vector{Tup
 end
 
 function Base.show(io::IO, ::MIME"text/plain", x::MetadataAll) 
-    println(io, "Metadata of all the sites")
+    sites = join(unique(x.df.site), ", ")
+    println(io, "Metadata of $(sites)")
     println(first(x.df, 5))
 end
-
 
 """
     datacollectionprogress(paths)
