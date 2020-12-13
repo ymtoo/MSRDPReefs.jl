@@ -31,7 +31,7 @@ DTRANGES = Dict(
     green = [3801.0, 733.0, 732.0, 701.0]
     blue = [3376.0, 712.0, 710.0, 601.0]
     mp = [3, 3, 3, 3]
-    for (path, site, sensitivity, gain) in zip(paths, sites, sensitivities, gains)
+    for (path, site, sensitivity, gain) ∈ zip(paths, sites, sensitivities, gains)
         mdata = Metadata(path, dtranges)
         @test mdata.site == site
         @test mdata.df[:, :sensitivity] == sensitivity
@@ -64,6 +64,17 @@ end
 end
 
 @testset "datacollectionprogress" begin
-    root = "/home/arl/Data/reefwatch/recordings"
-    println(datacollectionprogress(root))
+    root = "recordings"
+    df = datacollectionprogress(root)
+    df[:, "D1 (%)"] = round.(df[:, "D1 (%)"], digits=5)
+    dftrue = DataFrame("Site" => ["site-1","site-2"], 
+                       "D1 (%)" => Union{Missing,Real}[1.70139,1.70139],
+                       "D2 (%)" => Union{Missing,Real}[missing,missing],
+                       "D3 (%)" => Union{Missing,Real}[missing,missing],
+                       "D4 (%)" => Union{Missing,Real}[missing,missing],
+                       "D5 (%)" => Union{Missing,Real}[missing,missing],
+                       "D6 (%)" => Union{Missing,Real}[missing,missing])
+    for (col, coltrue) ∈ zip(eachcol(df), eachcol(dftrue))
+        @test isequal(col, coltrue)
+    end
 end
