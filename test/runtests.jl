@@ -45,17 +45,17 @@ DTRANGES = Dict(
     end
 end
 
-@testset "episodic" begin
-    df = DataFrame(:site => ["test", "test"], :wavpath => ["./recordings/site-1/2020-01/2020-01/20200131T115001.wav", "./recordings/site-1/2020-01/2020-01/20200131T115501.wav"], :startind => [10000, 50000], :stopind => [30000, 90000], :score => [1, 1])
-    x = LazyEpisodic(df)
-    @test size(x) == (2,)
-    @test size(x, 2) == size(x, 100) == 1
-    @test length(x) == size(x, 1) == 2
-    @test ndims(x) == 1
-    @test length.(x) == [20001, 40001]
-    @test vec(wavread(df.wavpath[1], subrange=df.startind[1]:df.stopind[1])[1]) == x[1]
-    @test vec(wavread(df.wavpath[2], subrange=df.startind[2]:df.stopind[2])[1]) == x[2]
-end
+# @testset "episodic" begin
+#     df = DataFrame(:site => ["test", "test"], :wavpath => ["./recordings/site-1/2020-01/2020-01/20200131T115001.wav", "./recordings/site-1/2020-01/2020-01/20200131T115501.wav"], :startind => [10000, 50000], :stopind => [30000, 90000], :score => [1, 1])
+#     x = LazyEpisodic(df)
+#     @test size(x) == (2,)
+#     @test size(x, 2) == size(x, 100) == 1
+#     @test length(x) == size(x, 1) == 2
+#     @test ndims(x) == 1
+#     @test length.(x) == [20001, 40001]
+#     @test vec(wavread(df.wavpath[1], subrange=df.startind[1]:df.stopind[1])[1]) == x[1]
+#     @test vec(wavread(df.wavpath[2], subrange=df.startind[2]:df.stopind[2])[1]) == x[2]
+# end
 
 @testset "utils" begin
     dt = DateTime(2009, 1, 26)
