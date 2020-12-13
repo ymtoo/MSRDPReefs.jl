@@ -7,7 +7,8 @@ function load_peakdetect(wavpath;
                          k, 
                          width, 
                          distance, 
-                         preprocess, 
+                         preprocess,
+                         getscores, 
                          site, 
                          fs, 
                          savedir=nothing)
@@ -15,17 +16,15 @@ function load_peakdetect(wavpath;
     wavfile = split(wavpath, "/")[end]
     dir = join([wavfile[1:4], wavfile[5:6]], "-")
     dt = DateTime(wavfile[1:end-4], "yyyymmddTHHMMSS")
-    # x = x[:,1]
     y = preprocess(vec(x))
-#    p = quantile.(Ref(y), (0.05, 0.95))
-#    yc = clamp.(y, p[1], p[2])
-    sc = Score(Energy(),
-               y;
-               winlen=winlen,
-               noverlap=noverlap,
-               padtype=:reflect,
-               map=map,
-               showprogress=false)
+    # sc = Score(Energy(),
+    #            y;
+    #            winlen=winlen,
+    #            noverlap=noverlap,
+    #            padtype=:reflect,
+    #            map=map,
+    #            showprogress=false)
+    sc = getscores(y)
     s = vec(sc.s)
     center = Statistics.median(s)
     height = center+k*mad(s, center=center, normalize=false)
