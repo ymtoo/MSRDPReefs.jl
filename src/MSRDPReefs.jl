@@ -24,15 +24,7 @@ export
     wavreadall,
     pressure,
 
-    # process
-    removedc_whiten_lpf_resample,
-    getfeatures,
-    getfeatures!,
-    getimpulsestats,
-    getentropy,
-    getzerocrossingrate,
-
-    #msrdpreefs
+    # data
     acousticsamplingrate,
     datacollectionprogress,
     filterfeatures!,
@@ -42,13 +34,21 @@ export
     MetadataAll,
     SITEDTRANGES,
 
+    # process
+    removedc_whiten_lpf_resample,
+    getfeatures,
+    getfeatures!,
+    getimpulsestats,
+    getentropy,
+    getzerocrossingrate,
+
     # episodic
     findepisodic,
     load_peakdetect,
     countepisodic
 
 include("utils.jl")
-include("msrdpreefs.jl")
+include("data.jl")
 include("process.jl")
 include("episodic.jl")
 
