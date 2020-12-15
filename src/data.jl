@@ -17,7 +17,7 @@ Dict{String,Array{Tuple{Dates.DateTime,Dates.DateTime},1}} with 10 entries:
   "Jong-S"     => [(DateTime("2019-09-11T12:30:00"), DateTime("2019-10-11T12:00:00")), (DateTime("202…
   "Semakau-NW" => [(DateTime("2020-01-08T13:30:00"), DateTime("2020-02-16T00:00:00")), (DateTime("202…
   "SD-NW"      => [(DateTime("2019-11-22T14:00:00"), DateTime("2019-12-02T11:30:00")), (DateTime("202…
-````
+```
 """
 const SITEDTRANGES = Dict(
     "Hantu-W" => [(DateTime(2019, 9, 11, 13, 0, 0), DateTime(2019, 10, 11, 12, 0, 0)), 
@@ -38,7 +38,8 @@ const SITEDTRANGES = Dict(
     "Semakau-NW" => [(DateTime(2020, 1, 8, 13, 30, 0), DateTime(2020, 2, 16, 0, 0, 0)),
                      (DateTime(2020, 8, 7, 12, 0, 0), DateTime(2020, 9, 11, 10, 0, 0))],
     "Semakau-SW" => [(DateTime(2019, 10, 11, 14, 0, 0), DateTime(2019, 10, 17, 3, 0, 0)),
-                     (DateTime(2020, 9, 11, 12, 0, 0), DateTime(2020, 9, 11, 21, 10, 0))],
+                     (DateTime(2020, 9, 11, 12, 0, 0), DateTime(2020, 9, 11, 21, 10, 0)),
+                     (DateTime(2020, 11, 13, 11, 30, 0), DateTime(2020, 12, 14, 12, 0, 0))],
     "Seringat" => [(DateTime(2019, 10, 11, 11, 0, 0), DateTime(2019, 11, 8, 0, 0, 0)), 
                    (DateTime(2020, 3, 19, 15, 0, 0), DateTime(2020, 4, 27, 1, 40, 0)),
                    (DateTime(2020, 9, 11, 13, 30, 0), DateTime(2020, 10, 13, 12, 0, 0))],
@@ -50,17 +51,17 @@ const SITEDTRANGES = Dict(
               (DateTime(2020, 9, 11, 12, 0, 0), DateTime(2020, 10, 13, 9, 30, 0))]
 )
 
-const COLUMNNAMES = ["datetime", 
-                     "sensitivity",
-                     "gain",
-                     "wavpath", 
-                     "battery", 
-                     "depth", 
-                     "temperature", 
-                     "redlight", 
-                     "greenlight", 
-                     "bluelight", 
-                     "moonphase"]
+const COLUMNNAMES = ["Datetime", 
+                     "Sensitivity",
+                     "Gain",
+                     "Wavpath", 
+                     "Battery", 
+                     "Depth", 
+                     "Temperature", 
+                     "Redlight", 
+                     "Greenlight", 
+                     "Bluelight", 
+                     "Moonphase"]
 const COLUMNTYPES = [DateTime[], 
                      Float64[],
                      Float64[],
@@ -97,16 +98,16 @@ end
 Get Metadata describing the collected data at a particular site. It composes 
 of a root path `path` to the data, a site name `site`, datatime ranges `dtranges` 
 and a DataFrame `df` for metadata: 
-- datetime
-- sensitivity
-- gain
-- wavpath
-- battery
-- depth
-- temperature
-- red light
-- blue light
-- green light 
+- Datetime
+- Sensitivity
+- Gain
+- Wavpath
+- Battery
+- Depth
+- Temperature
+- Red light
+- Blue light
+- Green light 
 
 # Example:
 ```julia-repl
@@ -117,7 +118,7 @@ Dates.DateTime("2020-02-16T00:11:31")), (Dates.DateTime("2020-06-30T12:30:00"),
 Dates.DateTime("2020-07-30T21:00:00")), (Dates.DateTime("2020-10-13T11:00:00"),
 Dates.DateTime("2020-11-13T10:00:00"))]
 5×11 DataFrame
-│ Row │ datetime            │ sensitivity │ gain    │ wavpath                                                                         │ battery  │ depth    │ temperature │ redlight │ greenlight │ bluelight │ moonphase │
+│ Row │ Datetime            │ Sensitivity │ Gain    │ Wavpath                                                                         │ battery  │ depth    │ temperature │ redlight │ greenlight │ bluelight │ moonphase │
 │     │ Dates.DateTime      │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │
 ├─────┼─────────────────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┤
 │ 1   │ 2019-09-11T13:02:08 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │
@@ -188,14 +189,13 @@ function revisedf!(df, logpath, dtrange, acousticsensor)
     site = patharray[end-2]
     pathtmp = rsplit(logpath, "/"; limit=2)[1]
     numrows = size(df, 1)
-    insertcols!(df, 1, :datetime => DateTime(2019, 6, 1, 0, 0, 0))
-    insertcols!(df, 2, :sensitivity => acousticsensor[1])
-    insertcols!(df, 3, :gain => acousticsensor[2])
-    insertcols!(df, 8, :redlight => Vector{Union{Missing,Float64}}(undef, numrows))
-    insertcols!(df, 9, :greenlight => Vector{Union{Missing,Float64}}(undef, numrows))
-    insertcols!(df, 10, :bluelight => Vector{Union{Missing,Float64}}(undef, numrows))
-#    insertcols!(df, 6, :light => RGB{Float64}(0.0, 0.0, 0.0))
-    insertcols!(df, 11, :moonphase => 0)
+    insertcols!(df, 1, :Datetime => DateTime(2019, 6, 1, 0, 0, 0))
+    insertcols!(df, 2, :Sensitivity => acousticsensor[1])
+    insertcols!(df, 3, :Gain => acousticsensor[2])
+    insertcols!(df, 8, :Redlight => Vector{Union{Missing,Float64}}(undef, numrows))
+    insertcols!(df, 9, :Greenlight => Vector{Union{Missing,Float64}}(undef, numrows))
+    insertcols!(df, 10, :Bluelight => Vector{Union{Missing,Float64}}(undef, numrows))
+    insertcols!(df, 11, :Moonphase => 0)
     notindtrangerowindices = Int[]
     for i in 1:size(df, 1)
         wavfile = df[i, :Timestamp]
@@ -204,29 +204,37 @@ function revisedf!(df, logpath, dtrange, acousticsensor)
         if !(dt >= dtrange[1] && dt <= dtrange[2])
             push!(notindtrangerowindices, i)
         end
-        df[i, :datetime] = dt#DateTime(wavfile[1:end-4], "yyyymmddTHHMMSS")
-        df[i, :Timestamp] = joinpath(joinpath(pathtmp, dir), wavfile)
+        df[i,:Datetime] = dt#DateTime(wavfile[1:end-4], "yyyymmddTHHMMSS")
+        df[i,:Timestamp] = joinpath(joinpath(pathtmp, dir), wavfile)
         if !ismissing(df[i, Symbol(" Depth(M)")]) && df[i, Symbol(" Depth(M)")] < 0.0 
             df[i, Symbol(" Depth(M)")] = missing
         end
-        if (!ismissing(df[i, Symbol(" Red ")]) && df[i, Symbol(" Red ")] == 65535) && (
-            !ismissing(df[i, Symbol(" Green ")]) && df[i, Symbol(" Green ")] == 65535) && (
-            !ismissing(df[i, Symbol(" Blue ")]) && df[i, Symbol(" Blue ")] == 65535)
-            df[i, Symbol(" Red ")] = missing
-            df[i, Symbol(" Green ")] = missing
-            df[i, Symbol(" Blue ")] = missing
+        if (!ismissing(df[i,Symbol(" Red ")]) && df[i,Symbol(" Red ")] == 65535) && (
+            !ismissing(df[i,Symbol(" Green ")]) && df[i,Symbol(" Green ")] == 65535) && (
+            !ismissing(df[i,Symbol(" Blue ")]) && df[i,Symbol(" Blue ")] == 65535)
+            df[i,Symbol(" Red ")] = missing
+            df[i,Symbol(" Green ")] = missing
+            df[i,Symbol(" Blue ")] = missing
         end
-        df[i, :redlight] = convert(Union{Missing,Float64}, df[i, end-2])
-        df[i, :greenlight] = convert(Union{Missing,Float64}, df[i, end-1])
-        df[i, :bluelight] = convert(Union{Missing,Float64}, df[i, end])
-#        df[i, :light] = RGB(Float64(df[i, end-2]), Float64(df[i, end-1]), Float64(df[i, end]))
-        df[i, :moonphase] = moonphase(dt)
+        df[i, :Redlight] = convert(Union{Missing,Float64}, df[i, end-2])
+        df[i, :Greenlight] = convert(Union{Missing,Float64}, df[i, end-1])
+        df[i, :Bluelight] = convert(Union{Missing,Float64}, df[i, end])
+        df[i, :Moonphase] = moonphase(dt)
     end
     select!(df, Not(Symbol.(delcolnames)))
     rename!(df, COLUMNNAMES)
     delete!(df, notindtrangerowindices)
-    categorical!(df, :moonphase)
+    categorical!(df, :Moonphase)
     df
+end
+
+"""
+    getdiverdata(path)
+
+Get sites and datetime ranges when divers were in the waters.
+"""
+function getdiverdata(path)
+
 end
 
 struct MetadataAll
@@ -241,23 +249,24 @@ end
 Get MetadataAll describing the collected data at multiple sites. It composes 
 of paths `paths` to the data, datatime ranges `dtrangesdict` 
 and a DataFrame `df` for metadata:
-- datetime
-- sensitivity
-- gain
-- wavpath
-- battery
-- depth
-- temperature
-- red light
-- blue light
-- green light 
+- Datetime
+- Site
+- Sensitivity
+- Gain
+- Wavpath
+- Battery
+- Depth
+- Temperature
+- Red light
+- Blue light
+- Green light 
 
 # Example:
 ```julia-repl
 julia> MetadataAll(["/home/arl/Data/reefwatch/recordings/Hantu-W","/home/arl/Data/reefwatch/recordings/RL-W"])
 Metadata of Hantu-W, RL-W
 5×12 DataFrame
-│ Row │ datetime            │ site     │ sensitivity │ gain    │ wavpath                                                                         │ battery  │ depth    │ temperature │ redlight │ greenlight │ bluelight │ moonphase │
+│ Row │ Datetime            │ Site     │ Sensitivity │ Gain    │ Wavpath                                                                         │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │
 │     │ Dates.DateTime      │ SubStri… │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │
 ├─────┼─────────────────────┼──────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┤
 │ 1   │ 2019-09-11T13:02:08 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │
@@ -286,16 +295,17 @@ end
 Get MetadataAll describing the collected data at all the sites. It composes 
 of a root path `path` to the data, datatime ranges `dtrangesdict` 
 and a DataFrame `df` for metadata: 
-- datetime
-- sensitivity
-- gain
-- wavpath
-- battery
-- depth
-- temperature
-- red light
-- blue light
-- green light 
+- Datetime
+- Site
+- Sensitivity
+- Gain
+- Wavpath
+- Battery
+- Depth
+- Temperature
+- Red light
+- Blue light
+- Green light 
 
 # Example:
 ```julia-repl

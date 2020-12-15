@@ -1,13 +1,11 @@
 module MSRDPReefs
 
-# using AcousticFeatures
 using CSV
 using DataFrames
 using Dates
 using DSP
 using FFTW
 using FindPeaks1D
-# using MemorylessNonlinearities
 using ProgressMeter
 using Requires
 using SignalAnalysis

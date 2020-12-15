@@ -34,14 +34,14 @@ DTRANGES = Dict(
     for (path, site, sensitivity, gain) ∈ zip(paths, sites, sensitivities, gains)
         mdata = Metadata(path, dtranges)
         @test mdata.site == site
-        @test mdata.df[:, :sensitivity] == sensitivity
-        @test mdata.df[:, :gain] == gain
-        @test mdata.df[:, :depth] == depth
-        @test mdata.df[:, :temperature] == temperature
-        @test mdata.df[:, :redlight] == red
-        @test mdata.df[:, :greenlight] == green
-        @test mdata.df[:, :bluelight] == blue
-        @test mdata.df[:, :moonphase] == mp
+        @test mdata.df[:,:Sensitivity] == sensitivity
+        @test mdata.df[:,:Gain] == gain
+        @test mdata.df[:,:Depth] == depth
+        @test mdata.df[:,:Temperature] == temperature
+        @test mdata.df[:,:Redlight] == red
+        @test mdata.df[:,:Greenlight] == green
+        @test mdata.df[:,:Bluelight] == blue
+        @test mdata.df[:,:Moonphase] == mp
     end
 end
 
