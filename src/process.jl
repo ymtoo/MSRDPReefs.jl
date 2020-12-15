@@ -42,19 +42,19 @@ accordingly.
 
 See also: [`getfeatures`](@ref)
 """
-_createtempdataframe(mdata::Metadata) = DataFrame(Datetime=mdata.df[!,:datetime], Site=mdata.site)
-_createtempdataframe(mdata::MetadataAll) = DataFrame(Datetime=mdata.df[!,:datetime], Site=mdata.df[!,:site])
+_createtempdataframe(mdatadf) = DataFrame(Datetime=mdatadf.Datetime, Site=mdatadf.Site)
+#_createtempdataframe(mdatadf) = DataFrame(Datetime=mdatadf[!,:Datetime], Site=mdatadf[!,:Site])
 function getfeatures!(feadf::AbstractDataFrame, 
-                      mdata::Union{Metadata,MetadataAll}, 
+                      mdatadf::DataFrame, 
                       gs::Vector{T}, 
                       feasymbols::Vector{Symbol}; 
                       map=map) where {T<:Function}
-    numrows = size(mdata.df, 1)
+    numrows = size(mdatadf, 1)
     numfeas = length(feasymbols)
     xs = @showprogress map((x, y, z) -> _getfeatures(x, gs, y, z), 
-                           mdata.df[:,:wavpath], 
-                           mdata.df[:,:sensitivity], 
-                           mdata.df[:,:gain]) 
+                           mdatadf[:,:Wavpath], 
+                           mdatadf[:,:Sensitivity], 
+                           mdatadf[:,:Gain]) 
     l = maximum(length.(xs))
     idxs = findall(x -> ismissing(first(x)), xs)
     for idx in idxs
@@ -81,12 +81,12 @@ as `feasymbols`.
 
 See also: [`getfeatures!`](@ref)
 """
-function getfeatures(mdata::Union{Metadata,MetadataAll}, 
+function getfeatures(mdatadf, 
                      gs::Vector{T}, 
                      feasymbols::Vector{Symbol}; 
                      map=map) where {T<:Function}
-    feadf = _createtempdataframe(mdata)
-    getfeatures!(feadf, mdata, gs, feasymbols; map=map)
+    feadf = _createtempdataframe(mdatadf)
+    getfeatures!(feadf, mdatadf, gs, feasymbols; map=map)
 end
 
 function getimpulsestats(x) 

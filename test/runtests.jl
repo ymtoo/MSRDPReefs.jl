@@ -22,26 +22,28 @@ DTRANGES = Dict(
                      [-179.00,-179.00,-179.00,-179.00]]
     gains = [[16.77, 16.77, 16.77, 16.77],
              [16.72, 16.72, 16.72, 16.72]]
-    paths = [joinpath(root, dir) for dir in dirs]
-    sites = ["site-1", "site-2"]
+    paths = getpaths(root)
+    sites = [["site-1", "site-1", "site-1", "site-1"], 
+             ["site-2", "site-2", "site-2", "site-2"]]
     depth = [0.06, 0.06, 0.06, 0.02]
     temperature = [27.87, 28.28, 28.29, 27.29]
-#    lightintensity = [RGB{Float64}(3827.0,3801.0,3376.0), RGB{Float64}(645.0, 733.0, 712.0), RGB{Float64}(644.0, 732.0, 710.0), RGB(620.0, 701.0, 601.0)]
     red = [3827.0, 645.0, 644.0, 620.0]
     green = [3801.0, 733.0, 732.0, 701.0]
     blue = [3376.0, 712.0, 710.0, 601.0]
     mp = [3, 3, 3, 3]
-    for (path, site, sensitivity, gain) ∈ zip(paths, sites, sensitivities, gains)
-        mdata = Metadata(path, dtranges)
-        @test mdata.site == site
-        @test mdata.df[:,:Sensitivity] == sensitivity
-        @test mdata.df[:,:Gain] == gain
-        @test mdata.df[:,:Depth] == depth
-        @test mdata.df[:,:Temperature] == temperature
-        @test mdata.df[:,:Redlight] == red
-        @test mdata.df[:,:Greenlight] == green
-        @test mdata.df[:,:Bluelight] == blue
-        @test mdata.df[:,:Moonphase] == mp
+    divers = [[true, false, false, false], [false, false, false, true]]
+    for (path, site, sensitivity, gain, diver) ∈ zip(paths, sites, sensitivities, gains, divers)
+        mdatadf = MSRDPReefs._metadata(path, dtranges)
+        @test mdatadf.Site == site
+        @test mdatadf[!,:Sensitivity] == sensitivity
+        @test mdatadf[!,:Gain] == gain
+        @test mdatadf[!,:Depth] == depth
+        @test mdatadf[!,:Temperature] == temperature
+        @test mdatadf[!,:Redlight] == red
+        @test mdatadf[!,:Greenlight] == green
+        @test mdatadf[!,:Bluelight] == blue
+        @test mdatadf[!,:Moonphase] == mp
+        @test mdatadf[!,:Diver] == diver
     end
 end
 

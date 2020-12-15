@@ -52,6 +52,7 @@ const SITEDTRANGES = Dict(
 )
 
 const COLUMNNAMES = ["Datetime", 
+                     "Site",
                      "Sensitivity",
                      "Gain",
                      "Wavpath", 
@@ -61,8 +62,10 @@ const COLUMNNAMES = ["Datetime",
                      "Redlight", 
                      "Greenlight", 
                      "Bluelight", 
-                     "Moonphase"]
+                     "Moonphase",
+                     "Diver"]
 const COLUMNTYPES = [DateTime[], 
+                     String[],
                      Float64[],
                      Float64[],
                      String[], 
@@ -72,7 +75,8 @@ const COLUMNTYPES = [DateTime[],
                      Union{Missing,Float64}[], 
                      Union{Missing,Float64}[], 
                      Union{Missing,Float64}[], 
-                     Int64[]]
+                     Int64[],
+                     Bool[]]
 
 const WAVFILETIMELENGTH = Minute(5)
 
@@ -80,10 +84,10 @@ const WAVFILETIMELENGTH = Minute(5)
     getpaths(rootpath)
 
 Get parent paths. The output is a 1-D array containing paths for data 
-(acoustic and environmental) collected in all the sites.
+(acoustic and environmental) collected at all the sites.
 """
 getpaths(rootpath::AbstractString) = [joinpath(rootpath, dir) for dir in 
-    readdir(rootpath) if dir ∉ ["Semakau-NE", "README.md"]]
+    readdir(rootpath) if dir ∉ ["Semakau-NE", "README.md", "logs"]]
 
 struct Metadata
     path::AbstractString
@@ -93,12 +97,13 @@ struct Metadata
 end
 
 """
-    Metadata(path, dtranges=SITEDTRANGES[split(path, "/")[end]])
+    _metadata(path, 
+              dtranges=SITEDTRANGES[split(path, "/")[end]], 
+              divinglogpath::AbstractString=joinpath(path, "../logs/diving-log.csv")
 
-Get Metadata describing the collected data at a particular site. It composes 
-of a root path `path` to the data, a site name `site`, datatime ranges `dtranges` 
-and a DataFrame `df` for metadata: 
+Get metadata in DataFrame of data collected at a particular site.
 - Datetime
+- Site
 - Sensitivity
 - Gain
 - Wavpath
@@ -108,53 +113,56 @@ and a DataFrame `df` for metadata:
 - Red light
 - Blue light
 - Green light 
+- Diver
 
 # Example:
 ```julia-repl
-julia> Metadata("/home/arl/Data/reefwatch/recordings/Hantu-W")
-Metadata of Hantu-W during [(Dates.DateTime("2019-09-11T13:00:00"),
-Dates.DateTime("2019-10-11T12:00:00")), (Dates.DateTime("2020-01-08T12:30:00"),
-Dates.DateTime("2020-02-16T00:11:31")), (Dates.DateTime("2020-06-30T12:30:00"),
-Dates.DateTime("2020-07-30T21:00:00")), (Dates.DateTime("2020-10-13T11:00:00"),
-Dates.DateTime("2020-11-13T10:00:00"))]
-5×11 DataFrame
-│ Row │ Datetime            │ Sensitivity │ Gain    │ Wavpath                                                                         │ battery  │ depth    │ temperature │ redlight │ greenlight │ bluelight │ moonphase │
-│     │ Dates.DateTime      │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │
-├─────┼─────────────────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┤
-│ 1   │ 2019-09-11T13:02:08 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │
-│ 2   │ 2019-09-11T13:07:07 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │
-│ 3   │ 2019-09-11T13:12:07 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │
-│ 4   │ 2019-09-11T13:17:07 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │
-│ 5   │ 2019-09-11T13:22:07 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │
+julia> df = MSRDPReefs._metadata("/home/arl/Data/reefwatch/recordings/Hantu-W");
+
+julia> first(df, 5)
+5×13 DataFrame
+│ Row │ Datetime            │ Site    │ Sensitivity │ Gain    │ Wavpath                                                                         │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │ Diver │
+│     │ Dates.DateTime      │ String  │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │ Bool  │
+├─────┼─────────────────────┼─────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┼───────┤
+│ 1   │ 2019-09-11T13:02:08 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │ 0     │
+│ 2   │ 2019-09-11T13:07:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │ 0     │
+│ 3   │ 2019-09-11T13:12:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │ 0     │
+│ 4   │ 2019-09-11T13:17:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │ 0     │
+│ 5   │ 2019-09-11T13:22:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │ 0     │
 ```
 """
-function Metadata(path::AbstractString, dtranges::AbstractVector{Tuple{DateTime, DateTime}}=SITEDTRANGES[split(path, "/")[end]])
+function _metadata(path::AbstractString, 
+                   dtranges::AbstractVector{Tuple{DateTime, DateTime}}=SITEDTRANGES[split(path, "/")[end]],
+                   divinglogpath::AbstractString=joinpath(path, "../logs/diving-log.csv"))
     site = split(path, "/")[end]
     logpaths = getlogpaths(path, dtranges)
     columns = [Symbol(columnname) => columntype for (columnname, columntype) in zip(COLUMNNAMES, COLUMNTYPES)]
+    diverdf = CSV.File(divinglogpath; types=[String,DateTime,DateTime]) |> DataFrame
+    sitediverdf = @view diverdf[diverdf.Site .== site,:]
     df = DataFrame(columns)
     for (logpath, dtrange) in zip(logpaths, dtranges)
-        dftmp = DataFrame(CSV.File(logpath; header=3, types=Dict("Timestamp" => String, 
-                                                                 " Batt (V)" => Union{Missing, Float64}, 
-                                                                 " Depth(M)" => Union{Missing, Float64}, 
-                                                                 " Temp (degC)" => Union{Missing, Float64}, 
-                                                                 " Red " => Union{Missing, Float64}, 
-                                                                 " Green " => Union{Missing, Float64}, 
-                                                                 " Blue " => Union{Missing, Float64})))
+        dftmp = CSV.File(logpath; header=3, types=Dict("Timestamp" => String, 
+                                                       " Batt (V)" => Union{Missing, Float64}, 
+                                                       " Depth(M)" => Union{Missing, Float64}, 
+                                                       " Temp (degC)" => Union{Missing, Float64}, 
+                                                       " Red " => Union{Missing, Float64}, 
+                                                       " Green " => Union{Missing, Float64}, 
+                                                       " Blue " => Union{Missing, Float64})) |> DataFrame
         acousticsensor = DataFrame(CSV.File(logpath; header=0, delim=" ", limit=2))[:,2]
-        revisedf!(dftmp, logpath, dtrange, acousticsensor)
+        revisedf!(dftmp, logpath, dtrange, acousticsensor, sitediverdf)
         append!(df, dftmp)
     end
-    Metadata(path, site, dtranges, df)
+    df
+    #Metadata(path, site, dtranges, df)
 end
-function Metadata(path::AbstractString, index::Integer)
-    Metadata(path, SITEDTRANGES[split(path, "/")[end]][index:index])
-end
+# function Metadata(path::AbstractString, index::Integer)
+#     Metadata(path, SITEDTRANGES[split(path, "/")[end]][index:index])
+# end
 
-function Base.show(io::IO, ::MIME"text/plain", x::Metadata) 
-    println(io, "Metadata of $(x.site) during $(x.dtranges)")
-    println(io, first(x.df, 5))
-end
+# function Base.show(io::IO, ::MIME"text/plain", x::Metadata) 
+#     println(io, "Metadata of $(x.site) during $(x.dtranges)")
+#     println(io, first(x.df, 5))
+# end
 
 """
     getlogpaths(path, dtranges)
@@ -178,24 +186,25 @@ end
 """
     revisedf!(df, logpath, dtrange, acousticsensor)    
 
-Modify the dataframe `df` by adding DateTime and WAV path columns, 
-combining Red, Green and Blue into RGB(Red, Green, Blue), renaming 
-the columns and removing rows which are not in the datetime range.
+Modify the dataframe `df` by adding Datetime, Site, Sensitivity, Gain, Wawpath, Moonphase, Diver columns, 
+combining Red, Green and Blue into RGB(Red, Green, Blue), renaming the columns and removing rows which 
+are not in the datetime range.
 """
-function revisedf!(df, logpath, dtrange, acousticsensor)
-#    colnames = names(df)#["Datetime", "WAV path", "Batt (V)", "Depth (m)", "Temp (degC)", "Light Intensity"]
+function revisedf!(df, logpath, dtrange, acousticsensor, sitediverdf)
     delcolnames = [" Red ", " Green ", " Blue "]
     patharray = split(logpath, "/")
     site = patharray[end-2]
     pathtmp = rsplit(logpath, "/"; limit=2)[1]
     numrows = size(df, 1)
     insertcols!(df, 1, :Datetime => DateTime(2019, 6, 1, 0, 0, 0))
-    insertcols!(df, 2, :Sensitivity => acousticsensor[1])
-    insertcols!(df, 3, :Gain => acousticsensor[2])
-    insertcols!(df, 8, :Redlight => Vector{Union{Missing,Float64}}(undef, numrows))
-    insertcols!(df, 9, :Greenlight => Vector{Union{Missing,Float64}}(undef, numrows))
-    insertcols!(df, 10, :Bluelight => Vector{Union{Missing,Float64}}(undef, numrows))
-    insertcols!(df, 11, :Moonphase => 0)
+    insertcols!(df, 2, :Site => site)
+    insertcols!(df, 3, :Sensitivity => acousticsensor[1])
+    insertcols!(df, 4, :Gain => acousticsensor[2])
+    insertcols!(df, 9, :Redlight => Vector{Union{Missing,Float64}}(undef, numrows))
+    insertcols!(df, 10, :Greenlight => Vector{Union{Missing,Float64}}(undef, numrows))
+    insertcols!(df, 11, :Bluelight => Vector{Union{Missing,Float64}}(undef, numrows))
+    insertcols!(df, 12, :Moonphase => 0)
+    insertcols!(df, 13, :Diver => false)
     notindtrangerowindices = Int[]
     for i in 1:size(df, 1)
         wavfile = df[i, :Timestamp]
@@ -216,10 +225,11 @@ function revisedf!(df, logpath, dtrange, acousticsensor)
             df[i,Symbol(" Green ")] = missing
             df[i,Symbol(" Blue ")] = missing
         end
-        df[i, :Redlight] = convert(Union{Missing,Float64}, df[i, end-2])
-        df[i, :Greenlight] = convert(Union{Missing,Float64}, df[i, end-1])
-        df[i, :Bluelight] = convert(Union{Missing,Float64}, df[i, end])
-        df[i, :Moonphase] = moonphase(dt)
+        df[i,:Redlight] = convert(Union{Missing,Float64}, df[i, end-2])
+        df[i,:Greenlight] = convert(Union{Missing,Float64}, df[i, end-1])
+        df[i,:Bluelight] = convert(Union{Missing,Float64}, df[i, end])
+        df[i,:Moonphase] = moonphase(dt)
+        !isempty(sitediverdf) && any((dt .>= sitediverdf[!,:Start]) .& (dt .<= sitediverdf[!,:Stop])) && (df[i,:Diver] = true)
     end
     select!(df, Not(Symbol.(delcolnames)))
     rename!(df, COLUMNNAMES)
@@ -228,27 +238,16 @@ function revisedf!(df, logpath, dtrange, acousticsensor)
     df
 end
 
-"""
-    getdiverdata(path)
-
-Get sites and datetime ranges when divers were in the waters.
-"""
-function getdiverdata(path)
-
-end
-
-struct MetadataAll
-    path::Vector{AbstractString}
-    dtranges::Dict{AbstractString, Vector{Tuple{DateTime, DateTime}}}
-    df::AbstractDataFrame
-end
+# struct MetadataAll
+#     path::Vector{AbstractString}
+#     dtranges::Dict{AbstractString, Vector{Tuple{DateTime, DateTime}}}
+#     df::AbstractDataFrame
+# end
 
 """
-    MetadataAll(paths, dtrangesdict=SITEDTRANGES)
+    metadata(paths, dtrangesdict=SITEDTRANGES)
 
-Get MetadataAll describing the collected data at multiple sites. It composes 
-of paths `paths` to the data, datatime ranges `dtrangesdict` 
-and a DataFrame `df` for metadata:
+Get metadata in DataFrame of data collected at multiple sites. 
 - Datetime
 - Site
 - Sensitivity
@@ -260,41 +259,53 @@ and a DataFrame `df` for metadata:
 - Red light
 - Blue light
 - Green light 
+- Diver
 
 # Example:
 ```julia-repl
-julia> MetadataAll(["/home/arl/Data/reefwatch/recordings/Hantu-W","/home/arl/Data/reefwatch/recordings/RL-W"])
-Metadata of Hantu-W, RL-W
-5×12 DataFrame
-│ Row │ Datetime            │ Site     │ Sensitivity │ Gain    │ Wavpath                                                                         │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │
-│     │ Dates.DateTime      │ SubStri… │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │
-├─────┼─────────────────────┼──────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┤
-│ 1   │ 2019-09-11T13:02:08 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │
-│ 2   │ 2019-09-11T13:07:07 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │
-│ 3   │ 2019-09-11T13:12:07 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │
-│ 4   │ 2019-09-11T13:17:07 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │
-│ 5   │ 2019-09-11T13:22:07 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │
+julia> df = metadata(["/home/arl/Data/reefwatch/recordings/Hantu-W","/home/arl/Data/reefwatch/recordings/RL-W"]);
+
+julia> first(df, 5)
+5×13 DataFrame
+│ Row │ Datetime            │ Site    │ Sensitivity │ Gain    │ Wavpath                                                                         │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │ Diver │
+│     │ Dates.DateTime      │ String  │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │ Bool  │
+├─────┼─────────────────────┼─────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┼───────┤
+│ 1   │ 2019-09-11T13:02:08 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │ 0     │
+│ 2   │ 2019-09-11T13:07:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │ 0     │
+│ 3   │ 2019-09-11T13:12:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │ 0     │
+│ 4   │ 2019-09-11T13:17:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │ 0     │
+│ 5   │ 2019-09-11T13:22:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │ 0     │
+
+julia> last(df, 5)
+5×13 DataFrame
+│ Row │ Datetime            │ Site   │ Sensitivity │ Gain    │ Wavpath                                                                      │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │ Diver │
+│     │ Dates.DateTime      │ String │ Float64     │ Float64 │ String                                                                       │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │ Bool  │
+├─────┼─────────────────────┼────────┼─────────────┼─────────┼──────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┼───────┤
+│ 1   │ 2020-09-11T08:39:15 │ RL-W   │ -179.9      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-08/2020-09/20200911T083915.wav │ 3.76     │ 2.43     │ 29.64       │ 282.0    │ 509.0      │ 283.0     │ 8         │ 0     │
+│ 2   │ 2020-09-11T08:44:16 │ RL-W   │ -179.9      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-08/2020-09/20200911T084416.wav │ 3.77     │ 2.42     │ 29.66       │ 291.0    │ 527.0      │ 293.0     │ 8         │ 0     │
+│ 3   │ 2020-09-11T08:49:17 │ RL-W   │ -179.9      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-08/2020-09/20200911T084917.wav │ 3.77     │ 2.41     │ 29.65       │ 297.0    │ 548.0      │ 310.0     │ 8         │ 0     │
+│ 4   │ 2020-09-11T08:54:18 │ RL-W   │ -179.9      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-08/2020-09/20200911T085418.wav │ 3.78     │ 2.42     │ 29.65       │ 322.0    │ 594.0      │ 331.0     │ 8         │ 0     │
+│ 5   │ 2020-09-11T08:59:19 │ RL-W   │ -179.9      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-08/2020-09/20200911T085919.wav │ 3.79     │ 2.39     │ 29.62       │ 342.0    │ 634.0      │ 352.0     │ 8         │ 0     │
 ```
 """
-function MetadataAll(paths::Vector{<:AbstractString}, 
-                     dtrangesdict::Dict{String, Vector{Tuple{DateTime, DateTime}}}=SITEDTRANGES)
+function metadata(paths::Vector{String}, 
+                  dtrangesdict::Dict{String, Vector{Tuple{DateTime, DateTime}}}=SITEDTRANGES)
     df = DataFrame()
     for path in paths
         site = split(path, "/")[end]
         dtranges = dtrangesdict[site]
-        mdatatmp = Metadata(path, dtranges)
-        insertcols!(mdatatmp.df, 2, :site => mdatatmp.site)
-        append!(df, mdatatmp.df)
+        dftmp = _metadata(path, dtranges)
+        # insertcols!(dftmp, 2, :site => dftmp.site)
+        append!(df, dftmp)
     end
-    MetadataAll(paths, dtrangesdict, df)
+    df
+    #MetadataAll(paths, dtrangesdict, df)
 end
 
 """
-    MetadataAll(path, dtrangesdict=SITEDTRANGES)
+    metadata(rootpath, dtrangesdict=SITEDTRANGES)
 
-Get MetadataAll describing the collected data at all the sites. It composes 
-of a root path `path` to the data, datatime ranges `dtrangesdict` 
-and a DataFrame `df` for metadata: 
+Get metadata in DataFrame of data collected at all the sites.
 - Datetime
 - Site
 - Sensitivity
@@ -306,31 +317,46 @@ and a DataFrame `df` for metadata:
 - Red light
 - Blue light
 - Green light 
+- Diver
 
 # Example:
 ```julia-repl
-julia> MetadataAll("/home/arl/Data/reefwatch/recordings")
-Metadata of Hantu-W, Jong-S, Kusu-NE, RL-W, SD-NW, SL-SE, Semakau-NW, Semakau-SW, Seringat, TPT
-5×12 DataFrame
-│ Row │ datetime            │ site     │ sensitivity │ gain    │ wavpath                                                                         │ battery  │ depth    │ temperature │ redlight │ greenlight │ bluelight │ moonphase │
-│     │ Dates.DateTime      │ SubStri… │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │
-├─────┼─────────────────────┼──────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┤
-│ 1   │ 2019-09-11T13:02:08 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │
-│ 2   │ 2019-09-11T13:07:07 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │
-│ 3   │ 2019-09-11T13:12:07 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │
-│ 4   │ 2019-09-11T13:17:07 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │
-│ 5   │ 2019-09-11T13:22:07 │ Hantu-W  │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │
+julia> df = metadata("/home/arl/Data/reefwatch/recordings");
+
+julia> first(df, 5)
+5×13 DataFrame
+│ Row │ Datetime            │ Site    │ Sensitivity │ Gain    │ Wavpath                                                                         │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │ Diver │
+│     │ Dates.DateTime      │ String  │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │ Bool  │
+├─────┼─────────────────────┼─────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┼───────┤
+│ 1   │ 2019-09-11T13:02:08 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │ 0     │
+│ 2   │ 2019-09-11T13:07:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │ 0     │
+│ 3   │ 2019-09-11T13:12:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │ 0     │
+│ 4   │ 2019-09-11T13:17:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │ 0     │
+│ 5   │ 2019-09-11T13:22:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │ 0     │
+
+julia> unique(df.Site)
+10-element Array{String,1}:
+ "Hantu-W"
+ "Jong-S"
+ "Kusu-NE"
+ "RL-W"
+ "SD-NW"
+ "SL-SE"
+ "Semakau-NW"
+ "Semakau-SW"
+ "Seringat"
+ "TPT"
 ```
 """
-function MetadataAll(path::AbstractString, dtrangesdict::Dict{String, Vector{Tuple{DateTime, DateTime}}}=SITEDTRANGES)
-    MetadataAll(getpaths(path), dtrangesdict)
+function metadata(rootpath::AbstractString, dtrangesdict::Dict{String, Vector{Tuple{DateTime, DateTime}}}=SITEDTRANGES)
+    metadata(getpaths(rootpath), dtrangesdict)
 end
 
-function Base.show(io::IO, ::MIME"text/plain", x::MetadataAll) 
-    sites = join(unique(x.df.site), ", ")
-    println(io, "Metadata of $(sites)")
-    println(first(x.df, 5))
-end
+# function Base.show(io::IO, ::MIME"text/plain", x::MetadataAll) 
+#     sites = join(unique(x.df.site), ", ")
+#     println(io, "Metadata of $(sites)")
+#     println(first(x.df, 5))
+# end
 
 """
     datacollectionprogress(paths)
@@ -377,7 +403,7 @@ function datacollectionprogress(paths::AbstractVector{String})
     df
 end
 """
-    datacollectionprogress(path)
+    datacollectionprogress(rootpath)
 
 Show the data collection progress in percentage given a root path. 100 percent
 equals to one month of data.
@@ -401,8 +427,8 @@ julia> datacollectionprogress("/home/arl/Data/reefwatch/recordings")
 │ 10  │ TPT        │ 128.354 │ 25.6559 │ 106.307 │ missing │ missing │ missing │
 ```
 """
-function datacollectionprogress(root::AbstractString)
-    paths = [joinpath(root, p) for p in readdir(root) if isdir(joinpath(root), p) && p ∉ ["Semakau-NE", "README.md"]]
+function datacollectionprogress(rootpath::AbstractString)
+    paths = getpaths(rootpath)#[joinpath(root, p) for p in readdir(root) if isdir(joinpath(root), p) && p ∉ ["Semakau-NE", "README.md"]]
     datacollectionprogress(paths)
 end
 
