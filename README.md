@@ -12,4 +12,4 @@ This package provides utility functions to load and analyze data collected at co
 * **Documentation**: <https://ymtoo.github.io/MSRDPReefs.jl/dev>
 
 ### APIs:
-- [Data loading]()
+- [Data loading](https://ymtoo.github.io/MSRDPReefs.jl/dev/data.html)
