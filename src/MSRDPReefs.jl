@@ -25,12 +25,9 @@ export
     # data
     acousticsamplingrate,
     datacollectionprogress,
-    # filterfeatures!,
     getlogpaths,
     getpaths,
     metadata,
-    # Metadata,
-    # MetadataAll,
     SITEDTRANGES,
 
     # process

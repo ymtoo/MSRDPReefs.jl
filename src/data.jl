@@ -1,5 +1,3 @@
-#const DEFAULTDTRANGES = (DateTime(2019, 6, 1, 0, 0, 0), DateTime(2021, 4, 30, 23, 59, 59))
-
 """
 Default datetime ranges for all the sites.
 
@@ -31,7 +29,8 @@ const SITEDTRANGES = Dict(
                   (DateTime(2020, 8, 7, 13, 0, 0), DateTime(2020, 9, 11, 12, 0, 0))],
     "RL-W" => [(DateTime(2019, 6, 21, 13, 0, 0), DateTime(2019, 7, 15, 11, 0, 0)), 
                (DateTime(2020, 1, 8, 10, 30, 0), DateTime(2020, 2, 15, 22, 30, 0)),
-               (DateTime(2020, 8, 7, 11, 0, 0), DateTime(2020, 9, 11, 9, 0, 0))],
+               (DateTime(2020, 8, 7, 11, 0, 0), DateTime(2020, 9, 11, 9, 0, 0)),
+               (DateTime(2020, 11, 13, 11, 0, 0), DateTime(2020, 12, 14, 10, 0, 0))],
     "SD-NW" => [(DateTime(2019, 11, 22, 14, 0, 0), DateTime(2019, 12, 2, 11, 30, 0)), 
                 (DateTime(2020, 3, 19, 12, 30, 0), DateTime(2020, 4, 27, 00, 50, 0)),
                 (DateTime(2020, 10, 13, 12, 30, 0), DateTime(2020, 11, 13, 11, 30, 0))],
@@ -88,13 +87,6 @@ Get parent paths. The output is a 1-D array containing paths for data
 """
 getpaths(rootpath::AbstractString) = [joinpath(rootpath, dir) for dir in 
     readdir(rootpath) if dir ∉ ["Semakau-NE", "README.md", "logs"]]
-
-struct Metadata
-    path::AbstractString
-    site::AbstractString
-    dtranges::AbstractVector{Tuple{DateTime, DateTime}}
-    df::AbstractDataFrame
-end
 
 """
     _metadata(path, 
@@ -153,16 +145,7 @@ function _metadata(path::AbstractString,
         append!(df, dftmp)
     end
     df
-    #Metadata(path, site, dtranges, df)
 end
-# function Metadata(path::AbstractString, index::Integer)
-#     Metadata(path, SITEDTRANGES[split(path, "/")[end]][index:index])
-# end
-
-# function Base.show(io::IO, ::MIME"text/plain", x::Metadata) 
-#     println(io, "Metadata of $(x.site) during $(x.dtranges)")
-#     println(io, first(x.df, 5))
-# end
 
 """
     getlogpaths(path, dtranges)
@@ -213,7 +196,7 @@ function revisedf!(df, logpath, dtrange, acousticsensor, sitediverdf)
         if !(dt >= dtrange[1] && dt <= dtrange[2])
             push!(notindtrangerowindices, i)
         end
-        df[i,:Datetime] = dt#DateTime(wavfile[1:end-4], "yyyymmddTHHMMSS")
+        df[i,:Datetime] = dt
         df[i,:Timestamp] = joinpath(joinpath(pathtmp, dir), wavfile)
         if !ismissing(df[i, Symbol(" Depth(M)")]) && df[i, Symbol(" Depth(M)")] < 0.0 
             df[i, Symbol(" Depth(M)")] = missing
@@ -237,12 +220,6 @@ function revisedf!(df, logpath, dtrange, acousticsensor, sitediverdf)
     categorical!(df, :Moonphase)
     df
 end
-
-# struct MetadataAll
-#     path::Vector{AbstractString}
-#     dtranges::Dict{AbstractString, Vector{Tuple{DateTime, DateTime}}}
-#     df::AbstractDataFrame
-# end
 
 """
     metadata(paths, dtrangesdict=SITEDTRANGES)
@@ -295,11 +272,9 @@ function metadata(paths::Vector{String},
         site = split(path, "/")[end]
         dtranges = dtrangesdict[site]
         dftmp = _metadata(path, dtranges)
-        # insertcols!(dftmp, 2, :site => dftmp.site)
         append!(df, dftmp)
     end
     df
-    #MetadataAll(paths, dtrangesdict, df)
 end
 
 """
@@ -352,12 +327,6 @@ function metadata(rootpath::AbstractString, dtrangesdict::Dict{String, Vector{Tu
     metadata(getpaths(rootpath), dtrangesdict)
 end
 
-# function Base.show(io::IO, ::MIME"text/plain", x::MetadataAll) 
-#     sites = join(unique(x.df.site), ", ")
-#     println(io, "Metadata of $(sites)")
-#     println(first(x.df, 5))
-# end
-
 """
     datacollectionprogress(paths)
 
@@ -379,12 +348,10 @@ julia> datacollectionprogress(["/home/arl/Data/reefwatch/recordings/Hantu-W",
 function datacollectionprogress(paths::AbstractVector{String})
     columns = [Symbol(columnname) => columntype for (columnname, columntype) in zip(["Site", "D1 (%)", "D2 (%)", "D3 (%)", "D4 (%)", "D5 (%)", "D6 (%)"], [String[], Union{Missing, Real}[], Union{Missing, Real}[], Union{Missing, Real}[], Union{Missing, Real}[], Union{Missing, Real}[], Union{Missing, Real}[]])]
     df = DataFrame(columns)
-#    sites = [p for p in readdir(root) if isdir(joinpath(root), p)]
     for path in paths
         x = []
         site = split(path, "/")[end]
         push!(x, site)
-#        pathtmp = joinpath(root, site)
         for p in readdir(path)
             if isfile(joinpath(path, p, "LOG.CSV"))
                 logdf = CSV.read(joinpath(path, p, "LOG.CSV"), DataFrame; header=3)
@@ -402,6 +369,7 @@ function datacollectionprogress(paths::AbstractVector{String})
     end
     df
 end
+
 """
     datacollectionprogress(rootpath)
 
@@ -431,31 +399,3 @@ function datacollectionprogress(rootpath::AbstractString)
     paths = getpaths(rootpath)#[joinpath(root, p) for p in readdir(root) if isdir(joinpath(root), p) && p ∉ ["Semakau-NE", "README.md"]]
     datacollectionprogress(paths)
 end
-
-# """
-# Filter extreme feature values.
-# """
-# function filterfeatures!(df::DataFrame, feas::Vector{Symbol})
-#     numrows = size(df, 1)
-#     for fea in feas
-#         x = df[!, fea]
-#         if fea == :nₛ
-#             low = percentile(x, 1)
-#             indices = findall(x -> x<low, x)
-#         elseif fea == :μₜ
-#             high = percentile(x, 99)
-#             indices = findall(x -> x>high, x)
-#         elseif fea == :varₜ
-#             high = percentile(x, 99)
-#             indices = findall(x -> x>high, x)
-#         elseif fea == :α
-#             high = percentile(x, 99)
-#             indices = findall(x -> x>high, x)
-#         elseif fea == :scale
-#             low, high = percentile(x, [1, 99])
-#             indices = findall(x -> (x<low) || (x>high), x)
-#         end
-#         df[indices, fea] .= median(x)
-#     end
-#     df
-# end
