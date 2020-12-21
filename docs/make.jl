@@ -13,3 +13,8 @@ makedocs(
         ],
     ],
 )
+
+deploydocs(
+  repo = "github.com/ymtoo/MSRDPReefs.jl",
+  branch = "gh-pages",
+)

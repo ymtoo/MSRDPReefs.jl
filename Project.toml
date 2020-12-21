@@ -8,7 +8,6 @@ CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DSP = "717857b8-e6f2-59f4-9121-6e50c889abd2"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
-FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
 FindPeaks1D = "d8961e24-b28b-4efb-8e50-1c680b9a7431"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
@@ -19,6 +18,9 @@ WAV = "8149f6b0-98f6-5db9-b78f-408fbbb8ef88"
 
 [compat]
 DataFrames = "0.22"
+SignalAnalysis = "0.4"
+CSV = "0.8"
+StatsBase = "0.33"
 julia = "1.5"
 
 [extras]
