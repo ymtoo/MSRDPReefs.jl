@@ -4,7 +4,6 @@ using CSV
 using DataFrames
 using Dates
 using DSP
-using FFTW
 using FindPeaks1D
 using ProgressMeter
 using Requires
