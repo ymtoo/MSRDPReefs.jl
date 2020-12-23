@@ -27,7 +27,7 @@ julia> [wavwrite(col, joinpath(root, string(i)*".wav"); Fs=9600) for (i, col) âˆ
 
 julia> wavpaths = readdir(root, join=true);
 
-julia> clusterindices, outlierindices = [1:30, 31:70, 71:85], 86:ndata;
+julia> clusterindices, outlierindices = [1:9, 10:70, 71:91], 92:ndata;
 
 julia> visualizeclusters(wavpaths, clusterindices, outlierindices, 10)
 GLMakie.Screen(...)
@@ -72,8 +72,16 @@ function visualizeclusters(wavpaths, clusterindices, outlierindices, ndisplayper
     on(scene.events.mouseposition) do mpos
         dists = [sqrt(sum(abs2, mpos .- ijp)) for ijp âˆˆ ijpos]
         minval, minindex = findmin(dists)
-        index = minindex.I[2] < nclass ? clusterindices[minindex.I[2]][minindex.I[1]] : (
-            isempty(outlierindices) ? Int[] : outlierindices[minindex.I[1]])
+        #cindices = clusterindices[minindex.I[2]]
+        if minindex.I[2] == nclass
+            if isempty(outlierindices) 
+                index = Int[]
+            else
+                index = minindex.I[1] > length(outlierindices) ? Int[] : outlierindices[minindex.I[1]]
+            end
+        else
+            index = minindex.I[1] > length(clusterindices[minindex.I[2]]) ? Int[] : clusterindices[minindex.I[2]][minindex.I[1]]
+        end
         if !isempty(index) && (minval < maxdisttoplay)
             println(clusternames[minindex.I[2]])
             wavpath = wavpaths[index]
