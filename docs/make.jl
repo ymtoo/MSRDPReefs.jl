@@ -1,6 +1,7 @@
 using Documenter
 
 push!(LOAD_PATH,"../src/")
+using AbstractPlotting
 using MSRDPReefs
 
 makedocs(
@@ -9,7 +10,8 @@ makedocs(
     pages = Any[
         "Home" => "index.md",
         "Manual" => Any[
-            "data.md"
+            "data.md",
+            "clustutils.md"
         ],
     ],
 )

@@ -10,3 +10,4 @@ This package provides utility functions to load and analyze data collected at co
 ### APIs
 
 - [Data loading](@ref)
+- [Utilities for clustering](@ref)
