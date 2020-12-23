@@ -1,6 +1,7 @@
 module MSRDPReefs
 
 using CSV
+using Clustering
 using DataFrames
 using Dates
 using DSP
@@ -29,6 +30,9 @@ export
     metadata,
     SITEDTRANGES,
 
+    # clustutils
+    visualizeclusters,
+
     # process
     removedc_whiten_lpf_resample,
     getfeatures,
@@ -50,6 +54,9 @@ include("episodic.jl")
 function __init__()
     @require PlotlyJS="f0f68f2c-4968-5e81-91da-67840de0976a" begin
         include("plotting.jl")
+    end
+    @require AbstractPlotting = "537997a7-5e4e-5d89-9595-2241ea00577e" begin
+        include("clustutils.jl")
     end
 end
 
