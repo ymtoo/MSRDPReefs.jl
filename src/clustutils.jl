@@ -6,7 +6,7 @@ extractindices(res::Vector{DbscanCluster}) = [c.core_indices for c ∈ res]
 """
     visualizeclusters(wavpaths, clusterindices, outlierindices, ndisplayperclass)
 
-Display spectrograms of sounds in `wavpaths` according to the clustering result denoyed by `clusterindices`
+Display spectrograms of sounds in `wavpaths` according to the clustering result denoted by `clusterindices`
 and `outlierindices`. `ndisplayperclass` defines number of spectrogram per class to be displayed. The axes
 are blank if `ndisplayperclass` is larger than cluster size. When a mouse is hovering at thecenter of a spectrogram,
 the respective sound is played.
@@ -23,7 +23,8 @@ julia> root = mktempdir();
 
 julia> data = randn(4800, ndata);
 
-julia> [wavwrite(col, joinpath(root, string(i)*".wav"); Fs=9600) for (i, col) ∈ enumerate(eachcol(data))];
+julia> [wavwrite(col, joinpath(root, string(i)*".wav"); Fs=9600) for (i, col) ∈ 
+        enumerate(eachcol(data))];
 
 julia> wavpaths = readdir(root, join=true);
 
@@ -111,7 +112,8 @@ julia> root = mktempdir();
 
 julia> data = randn(4800, ndata);
 
-julia> [wavwrite(col, joinpath(root, string(i)*".wav"); Fs=9600) for (i, col) ∈ enumerate(eachcol(data))];
+julia> [wavwrite(col, joinpath(root, string(i)*".wav"); Fs=9600) for (i, col) ∈ 
+        enumerate(eachcol(data))];
 
 julia> wavpaths = readdir(root, join=true);
 
