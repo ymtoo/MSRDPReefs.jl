@@ -1,6 +1,10 @@
 using .AbstractPlotting
 
 extractindices(res::KmeansResult) = [findall(res.assignments .== i) for i ∈ 1:length(res.counts)]
+function extractindices(res::Hclust; k=k)
+    assignments = cutree(res; k=k)
+    [findall(assignments .== i) for i ∈ 1:length(unique(assignments))
+end
 extractindices(res::Vector{DbscanCluster}) = [c.core_indices for c ∈ res]
 
 """
@@ -123,8 +127,8 @@ julia> visualizeclusters(wavpaths, res, 10)
 GLMakie.Screen(...)
 ```
 """
-function visualizeclusters(wavpaths, res, ndisplayperclass)
-    clusterindices = extractindices(res)
+function visualizeclusters(wavpaths, res, ndisplayperclass; kwargs...)
+    clusterindices = extractindices(res; kwargs...)
     outlierindices = [outlierindex for outlierindex ∈ 1:length(wavpaths) 
                       if outlierindex ∉ [index for cindices ∈ clusterindices for index ∈ cindices]]
     visualizeclusters(wavpaths, clusterindices, outlierindices, ndisplayperclass)
