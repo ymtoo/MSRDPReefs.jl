@@ -3,7 +3,7 @@ using .AbstractPlotting
 extractindices(res::KmeansResult) = [findall(res.assignments .== i) for i ∈ 1:length(res.counts)]
 function extractindices(res::Hclust; k=k)
     assignments = cutree(res; k=k)
-    [findall(assignments .== i) for i ∈ 1:length(unique(assignments))
+    [findall(assignments .== i) for i ∈ 1:length(unique(assignments))]
 end
 extractindices(res::Vector{DbscanCluster}) = [c.core_indices for c ∈ res]
 
