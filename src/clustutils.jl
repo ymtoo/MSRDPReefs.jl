@@ -154,7 +154,7 @@ julia> X = umap(data, 2);
 
 julia> specgram_scatter(X[1,:], X[2,:], data; fs=9600)
 GLMakie.Screen(...)
-````
+```
 """
 function specgram_scatter(x::AbstractVector{T}, 
                           y::AbstractVector{T}, 
