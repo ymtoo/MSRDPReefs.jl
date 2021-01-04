@@ -1,5 +1,7 @@
 using .AbstractPlotting
 
+using Colors
+
 extractindices(res::KmeansResult) = [findall(res.assignments .== i) for i ∈ 1:length(res.counts)]
 function extractindices(res::Hclust; k=k)
     assignments = cutree(res; k=k)
@@ -133,4 +135,39 @@ function visualizeclusters(wavpaths, res, ndisplayperclass; kwargs...)
     outlierindices = [outlierindex for outlierindex ∈ 1:length(wavpaths) 
                       if outlierindex ∉ [index for cindices ∈ clusterindices for index ∈ cindices]]
     visualizeclusters(wavpaths, clusterindices, outlierindices, ndisplayperclass)
+end
+
+"""
+    scatter(x, y, data; fs, nfft=256, noverlap=128, kwargs...)
+
+Plot a scatter plot where each point is a spectrogram.
+
+# Examples:
+```julia-repl
+julia> using MSRDPReefs, UMAP
+
+julia> using AbstractPlotting, GLMakie
+
+julia> data = randn(4800, 20);
+
+julia> X = umap(data, 2);
+
+julia> specgram_scatter(X[1,:], X[2,:], data; fs=9600)
+GLMakie.Screen(...)
+````
+"""
+function specgram_scatter(x::AbstractVector{T}, 
+                          y::AbstractVector{T}, 
+                          data::AbstractMatrix{T}; 
+                          fs=1, 
+                          nfft::Integer=256, 
+                          noverlap::Integer=128,
+                          kwargs...) where T<:Real 
+    spec = [(p=spectrogram(d, nfft, noverlap; fs=fs).power; 
+            Gray.(Float32.((p .- minimum(p)) ./ (maximum(p)-minimum(p))))) for d in eachcol(data)]
+    scene = Scene(resolution=(1600, 1000))
+    for inds in Iterators.partition(1:length(x), 400)
+        AbstractPlotting.scatter!(scene, x[inds], y[inds]; marker=spec[inds], kwargs...)
+    end
+    display(scene)
 end

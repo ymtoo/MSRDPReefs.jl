@@ -32,6 +32,7 @@ export
 
     # clustutils
     visualizeclusters,
+    specgram_scatter,
 
     # process
     removedc_whiten_lpf_resample,

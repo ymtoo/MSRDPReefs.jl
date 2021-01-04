@@ -91,22 +91,3 @@ function scatterplot(df::DataFrame; spidxfilters::Dict=spidxfilters, color="blue
     push!(l.fields, :height => 1000)
     PlotlyJS.plot(traces, l)
 end
-
-"""
-Plot a scatter plot where each point is a spectrogram.
-"""
-function specgram_scatter(x::AbstractVector{T}, 
-                          y::AbstractVector{T}, 
-                          data::AbstractMatrix{T}; 
-                          fs, 
-                          nfft::Integer=256, 
-                          noverlap::Integer=128,
-                          kwargs...) where T<:Real 
-    spec = [(p=spectrogram(d, nfft, noverlap; fs=fs).power; 
-            Gray.((p .- minimum(p)) ./ (maximum(p)-minimum(p)))) for d in eachcol(data)]
-    scene = Makie.Scene(resolution=(1600, 1000))
-    for inds in Iterators.partition(1:length(x), 400)
-        Makie.scatter!(scene, x[inds], y[inds]; marker=spec[inds], kwargs...)
-    end
-    display(scene)
-end
