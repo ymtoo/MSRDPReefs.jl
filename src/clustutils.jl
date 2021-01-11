@@ -42,7 +42,7 @@ GLMakie.Screen(...)
 ```
 """
 function visualizeclusters(wavpaths, clusterindices, outlierindices, ndisplayperclass)
-    clusternames = [("Class #" .* string.(1:length(clusterindices)))..., "Outliers"]
+    clusternames = [("#" .* string.(1:length(clusterindices)))..., "Outliers"]
     nclass = length(clusternames)
     swidth, sheight = 1200, 900
     scene, layout = layoutscene(resolution = (1200, 900))
