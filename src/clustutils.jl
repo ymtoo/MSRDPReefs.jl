@@ -137,20 +137,68 @@ function visualizeclusters(wavpaths, res, ndisplayperclass; kwargs...)
     visualizeclusters(wavpaths, clusterindices, outlierindices, ndisplayperclass)
 end
 
-"""
-    scatter(x, y, data; fs, nfft=256, noverlap=128, kwargs...)
+function specgram_scatter(x::AbstractVector{T}, 
+                          y::AbstractVector{T}, 
+                          spec::AbstractVector{DT}; 
+                          kwargs...) where {T<:Real,DT<:AbstractMatrix} 
+    # spec = [(p=spectrogram(d, nfft, noverlap; fs=fs).power; 
+    #         Gray.(Float32.((p .- minimum(p)) ./ (maximum(p)-minimum(p))))) for d in data]
+    scene = Scene(resolution=(1600, 1000))
+    for inds in Iterators.partition(1:length(x), 400)
+        AbstractPlotting.scatter!(scene, x[inds], y[inds]; marker=spec[inds], kwargs...)
+    end
+    display(scene)
+end
 
-Plot a scatter plot where each point is a spectrogram.
+"""
+    specgram_scatter(x, y, data; fs=1, nfft=256, noverlap=128, kwargs...)
+
+Plot a scatter plot with each point is a spectrogram of a WAV file from data.
 
 # Examples:
 ```julia-repl
-julia> using MSRDPReefs, UMAP
+julia> using MSRDPReefs, WAV
 
 julia> using AbstractPlotting, GLMakie
 
-julia> data = randn(4800, 20);
+julia> root = mktempdir();
 
-julia> X = umap(data, 2);
+julia> [wavwrite(randn(4800), joinpath(root, string(i)*".wav"); Fs=9600) for i ∈ 1:20];
+
+julia> wavpaths = readdir(root, join=true);
+
+julia> X = randn(2, length(wavpaths));
+
+julia> specgram_scatter(X[1,:], X[2,:], wavpaths; fs=9600)
+GLMakie.Screen(...)
+```
+"""
+function specgram_scatter(x::AbstractVector{T}, 
+                          y::AbstractVector{T}, 
+                          data::AbstractVector{DT}; 
+                          fs=1, 
+                          nfft::Integer=256, 
+                          noverlap::Integer=128,
+                          kwargs...) where {T<:Real,DT<:AbstractString}
+    spec = [(p=spectrogram(vec(first(wavread(d))), nfft, noverlap; fs=fs).power; 
+             Gray.(Float32.((p .- minimum(p)) ./ (maximum(p)-minimum(p))))) for d in data]
+    specgram_scatter(x, y, spec; kwargs...)
+end
+
+"""
+    specgram_scatter(x, y, data; fs=1, nfft=256, noverlap=128, kwargs...)
+
+Plot a scatter plot with each point is a spectrogram of a signal from data.
+
+# Examples:
+```julia-repl
+julia> using MSRDPReefs
+
+julia> using AbstractPlotting, GLMakie
+
+julia> data = [randn(4800) for i ∈ 1:20];
+
+julia> X = randn(2, length(data));
 
 julia> specgram_scatter(X[1,:], X[2,:], data; fs=9600)
 GLMakie.Screen(...)
@@ -158,16 +206,12 @@ GLMakie.Screen(...)
 """
 function specgram_scatter(x::AbstractVector{T}, 
                           y::AbstractVector{T}, 
-                          data::AbstractMatrix{T}; 
+                          data::AbstractVector{DT}; 
                           fs=1, 
                           nfft::Integer=256, 
                           noverlap::Integer=128,
-                          kwargs...) where T<:Real 
+                          kwargs...) where {T<:Real,DT<:AbstractVector{<:Real}} 
     spec = [(p=spectrogram(d, nfft, noverlap; fs=fs).power; 
-            Gray.(Float32.((p .- minimum(p)) ./ (maximum(p)-minimum(p))))) for d in eachcol(data)]
-    scene = Scene(resolution=(1600, 1000))
-    for inds in Iterators.partition(1:length(x), 400)
-        AbstractPlotting.scatter!(scene, x[inds], y[inds]; marker=spec[inds], kwargs...)
-    end
-    display(scene)
+             Gray.(Float32.((p .- minimum(p)) ./ (maximum(p)-minimum(p))))) for d in data]
+    specgram_scatter(x, y, spec; kwargs...)
 end
