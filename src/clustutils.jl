@@ -143,9 +143,11 @@ function specgram_scatter(x::AbstractVector{T},
                           kwargs...) where {T<:Real,DT<:AbstractMatrix} 
     # spec = [(p=spectrogram(d, nfft, noverlap; fs=fs).power; 
     #         Gray.(Float32.((p .- minimum(p)) ./ (maximum(p)-minimum(p))))) for d in data]
+    indices = sortperm(size.(spec,2))
     scene = Scene(resolution=(1600, 1000))
     for inds in Iterators.partition(1:length(x), 400)
-        AbstractPlotting.scatter!(scene, x[inds], y[inds]; marker=spec[inds], kwargs...)
+        subindices = indices[inds]
+        AbstractPlotting.scatter!(scene, x[subindices], y[subindices]; marker=spec[subindices], kwargs...)
     end
     display(scene)
 end
