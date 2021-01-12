@@ -46,7 +46,7 @@ function visualizeclusters(wavpaths, clusterindices, outlierindices, ndisplayper
     nclass = length(clusternames)
     swidth, sheight = 1200, 900
     scene, layout = layoutscene(resolution = (1200, 900))
-    axes = layout[] = [LAxis(scene) for i ∈ 1:nclass, j ∈ 1:ndisplayperclass]
+    axes = layout[] = [Axis(scene) for i ∈ 1:nclass, j ∈ 1:ndisplayperclass]
     for i ∈ 1:nclass
         indices = i < nclass ? clusterindices[i] : outlierindices
         for j ∈ 1:ndisplayperclass
@@ -57,7 +57,7 @@ function visualizeclusters(wavpaths, clusterindices, outlierindices, ndisplayper
                 index = indices[j]
                 x = signal(wavpaths[index])
                 spec = spectrogram(samples(x[:]), 128, 64; fs=framerate(x))
-                heatmap!(axes[i,j], time(spec), freq(spec), pow2db.(power(spec)'))
+                heatmap!(axes[i,j], time(spec), freq(spec), pow2db.(power(spec)'); xticklabelsize=10)
                 starttime = floor(minimum(time(spec)); digits=1)
                 stoptime = floor(maximum(time(spec)); digits=1)
                 axes[i,j].xticks = (starttime:stoptime-starttime:stoptime, ["$(starttime)", "$(stoptime)"])
