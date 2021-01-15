@@ -34,21 +34,25 @@ const SITEDTRANGES = Dict(
                (DateTime(2020, 11, 13, 11, 0, 0), DateTime(2020, 12, 14, 10, 0, 0))],
     "SD-NW" => [(DateTime(2019, 11, 22, 14, 0, 0), DateTime(2019, 12, 2, 11, 30, 0)), 
                 (DateTime(2020, 3, 19, 12, 30, 0), DateTime(2020, 4, 27, 00, 50, 0)),
-                (DateTime(2020, 10, 13, 12, 30, 0), DateTime(2020, 11, 13, 11, 30, 0))],
+                (DateTime(2020, 10, 13, 12, 30, 0), DateTime(2020, 11, 13, 11, 30, 0)),
+                (DateTime(2020, 12, 14, 13, 30, 0), DateTime(2021, 1, 14, 12, 30, 0))],
     "Semakau-NW" => [(DateTime(2020, 1, 8, 13, 30, 0), DateTime(2020, 2, 16, 0, 0, 0)),
-                     (DateTime(2020, 8, 7, 12, 0, 0), DateTime(2020, 9, 11, 10, 0, 0))],
+                     (DateTime(2020, 8, 7, 12, 0, 0), DateTime(2020, 9, 11, 10, 0, 0)),
+                     (DateTime(2020, 12, 14, 12, 30, 0), DateTime(2021, 1, 14, 11, 0, 0))],
     "Semakau-SW" => [(DateTime(2019, 10, 11, 14, 0, 0), DateTime(2019, 10, 17, 3, 0, 0)),
                      (DateTime(2020, 9, 11, 12, 0, 0), DateTime(2020, 9, 11, 21, 10, 0)),
                      (DateTime(2020, 11, 13, 11, 30, 0), DateTime(2020, 12, 14, 12, 0, 0))],
     "Seringat" => [(DateTime(2019, 10, 11, 11, 0, 0), DateTime(2019, 11, 8, 0, 0, 0)), 
                    (DateTime(2020, 3, 19, 15, 0, 0), DateTime(2020, 4, 27, 1, 40, 0)),
-                   (DateTime(2020, 9, 11, 13, 30, 0), DateTime(2020, 10, 13, 12, 0, 0))],
+                   (DateTime(2020, 9, 11, 13, 30, 0), DateTime(2020, 10, 13, 12, 0, 0)),
+                   (DateTime(2020, 12, 14, 14, 0, 0), DateTime(2021, 1, 14, 13, 0, 0))],
     "SL-SE" => [(DateTime(2019, 10, 11, 12, 0, 0), DateTime(2019, 10, 25, 0, 0, 0)), 
                 (DateTime(2020, 3, 19, 15, 0, 0), DateTime(2020, 4, 27, 1, 30, 0)),
                 (DateTime(2020, 10, 13, 12, 30, 0), DateTime(2020, 11, 13, 11, 30, 0))],
     "TPT" => [(DateTime(2019, 11, 22, 11, 30, 0), DateTime(2019, 12, 31, 0, 0, 0)), 
               (DateTime(2020, 3, 19, 10, 40, 0), DateTime(2020, 4, 26, 22, 50, 0)),
-              (DateTime(2020, 9, 11, 12, 0, 0), DateTime(2020, 10, 13, 9, 30, 0))]
+              (DateTime(2020, 9, 11, 12, 0, 0), DateTime(2020, 10, 13, 9, 30, 0)),
+              (DateTime(2020, 12, 14, 12, 0, 0), DateTime(2021, 1, 14, 10, 0, 0))]
 )
 
 const COLUMNNAMES = ["Datetime", 
@@ -386,14 +390,14 @@ julia> datacollectionprogress("/home/arl/Data/reefwatch/recordings")
 ├─────┼────────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
 │ 1   │ Hantu-W    │ 100.788 │ 128.408 │ 77.8376 │ 103.189 │ missing │ missing │
 │ 2   │ Jong-S     │ 100.811 │ 116.446 │ 103.188 │ missing │ missing │ missing │
-│ 3   │ Kusu-NE    │ 100.452 │ 116.518 │ missing │ missing │ missing │ missing │
-│ 4   │ RL-W       │ 83.6276 │ 128.501 │ 116.384 │ missing │ missing │ missing │
-│ 5   │ SD-NW      │ 33.1604 │ 44.6388 │ 103.184 │ missing │ missing │ missing │
+│ 3   │ Kusu-NE    │ 100.452 │ 116.518 │ 103.32  │ missing │ missing │ missing │
+│ 4   │ RL-W       │ 83.6276 │ 128.501 │ 116.384 │ 103.324 │ missing │ missing │
+│ 5   │ SD-NW      │ 33.1604 │ 44.6388 │ 103.184 │ 103.181 │ missing │ missing │
 │ 6   │ SL-SE      │ 44.5767 │ 103.188 │ missing │ missing │ missing │ missing │
-│ 7   │ Semakau-NW │ 128.225 │ 116.374 │ missing │ missing │ missing │ missing │
-│ 8   │ Semakau-SW │ 18.9137 │ 4.374   │ missing │ missing │ missing │ missing │
-│ 9   │ Seringat   │ 90.5111 │ 51.5231 │ 106.451 │ missing │ missing │ missing │
-│ 10  │ TPT        │ 128.354 │ 25.6559 │ 106.307 │ missing │ missing │ missing │
+│ 7   │ Semakau-NW │ 128.225 │ 116.374 │ 103.11  │ missing │ missing │ missing │
+│ 8   │ Semakau-SW │ 18.9137 │ 4.374   │ 103.383 │ missing │ missing │ missing │
+│ 9   │ Seringat   │ 90.5111 │ 51.5231 │ 106.451 │ 103.187 │ missing │ missing │
+│ 10  │ TPT        │ 128.354 │ 25.6559 │ 106.307 │ 103.043 │ missing │ missing │
 ```
 """
 function datacollectionprogress(rootpath::AbstractString)
