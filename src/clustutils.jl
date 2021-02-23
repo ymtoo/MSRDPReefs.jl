@@ -147,7 +147,12 @@ function specgram_scatter(x::AbstractVector{T},
     scene = Scene(resolution=(1600, 1000))
     for inds in Iterators.partition(1:length(x), 400)
         subindices = indices[inds]
-        AbstractPlotting.scatter!(scene, x[subindices], y[subindices]; marker=spec[subindices], kwargs...)
+        AbstractPlotting.scatter!(scene, 
+                                  x[subindices], 
+                                  y[subindices]; 
+                                  marker=spec[subindices], 
+                                  markerspace=SceneSpace,
+                                  kwargs...)
     end
     display(scene)
 end
