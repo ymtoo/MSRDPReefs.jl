@@ -137,24 +137,28 @@ function visualizeclusters(wavpaths, res, ndisplayperclass; kwargs...)
     visualizeclusters(wavpaths, clusterindices, outlierindices, ndisplayperclass)
 end
 
-function specgram_scatter(x::AbstractVector{T}, 
+function specgram_scatter!(ax,
+                           x::AbstractVector{T}, 
                           y::AbstractVector{T}, 
                           spec::AbstractVector{DT}; 
                           kwargs...) where {T<:Real,DT<:AbstractMatrix} 
     # spec = [(p=spectrogram(d, nfft, noverlap; fs=fs).power; 
     #         Gray.(Float32.((p .- minimum(p)) ./ (maximum(p)-minimum(p))))) for d in data]
-    indices = sortperm(size.(spec,2))
-    scene = Scene(resolution=(1600, 1000))
-    for inds in Iterators.partition(1:length(x), 400)
-        subindices = indices[inds]
-        AbstractPlotting.scatter!(scene, 
-                                  x[subindices], 
-                                  y[subindices]; 
-                                  marker=spec[subindices], 
+    ns = size.(spec,2)
+    for n ∈ unique(ns)
+        samesizeindices = findall(n .== ns)
+        for inds in Iterators.partition(samesizeindices, 400)
+            # subindices = indices[inds]
+            #markersizes = [s ./ 100 for s ∈ size.(spec[subindices],2)]
+            AbstractPlotting.scatter!(ax, 
+                                    x[inds], 
+                                    y[inds]; 
+                                    marker=spec[inds], 
+                                    #markersize=markersizes,
                                   markerspace=SceneSpace,
                                   kwargs...)
     end
-    display(scene)
+end
 end
 
 """
