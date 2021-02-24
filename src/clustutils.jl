@@ -139,9 +139,9 @@ end
 
 function specgram_scatter!(ax,
                            x::AbstractVector{T}, 
-                          y::AbstractVector{T}, 
-                          spec::AbstractVector{DT}; 
-                          kwargs...) where {T<:Real,DT<:AbstractMatrix} 
+                           y::AbstractVector{T}, 
+                           spec::AbstractVector{DT}; 
+                           kwargs...) where {T<:Real,DT<:AbstractMatrix} 
     # spec = [(p=spectrogram(d, nfft, noverlap; fs=fs).power; 
     #         Gray.(Float32.((p .- minimum(p)) ./ (maximum(p)-minimum(p))))) for d in data]
     ns = size.(spec,2)
@@ -155,10 +155,10 @@ function specgram_scatter!(ax,
                                     y[inds]; 
                                     marker=spec[inds], 
                                     #markersize=markersizes,
-                                  markerspace=SceneSpace,
-                                  kwargs...)
+                                    markerspace=SceneSpace,
+                                    kwargs...)
+        end
     end
-end
 end
 
 """
@@ -193,7 +193,25 @@ function specgram_scatter(x::AbstractVector{T},
                           kwargs...) where {T<:Real,DT<:AbstractString}
     spec = [(p=spectrogram(vec(first(wavread(d))), nfft, noverlap; fs=fs).power; 
              Gray.(Float32.((p .- minimum(p)) ./ (maximum(p)-minimum(p))))) for d in data]
-    specgram_scatter(x, y, spec; kwargs...)
+    fig = Figure(resolution=(1600, 1000))
+    ax = fig[1,1] = Axis(fig)
+    specgram_scatter!(ax, x, y, spec; kwargs...)
+    on(ax.scene.events.keyboardbuttons) do button
+        if ispressed(button, Keyboard.s)
+            #on(ax.scene.events.mouseposition) do mpos
+            mpos = ax.scene.events.mouseposition[]
+            xm, ym = Point2f0(mpos) |> x->to_world(ax.scene,x) |> Tuple
+            # xm, ym = scene.events.mouseposition
+            dist, index = findmin(sqrt.((x .- xm).^2 .+ (y .- ym).^2))
+            @info "($(xm), $(ym)), ($(x[index]), $(y[index]))"
+            if dist ≤ 0.1
+                file = data[index]
+                wavplay(file)
+            end
+            # end
+        end
+    end
+    display(fig)
 end
 
 """
