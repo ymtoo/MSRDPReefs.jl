@@ -94,7 +94,7 @@ Get parent paths. The output is a 1-D array containing paths for data
 (acoustic and environmental) collected at all the sites.
 """
 getpaths(rootpath::AbstractString) = [joinpath(rootpath, dir) for dir in 
-    readdir(rootpath) if dir ∉ ["Semakau-NE", "README.md", "logs"]]
+    readdir(rootpath) if dir ∉ ["Semakau-NE", "README.md", "logs", ".DS_Store", "@eaDir"]]
 
 """
     _metadata(path, 
@@ -196,16 +196,21 @@ function revisedf!(df, logpath, dtrange, acousticsensor, sitediverdf)
     insertcols!(df, 11, :Bluelight => Vector{Union{Missing,Float64}}(undef, numrows))
     insertcols!(df, 12, :Moonphase => 0)
     insertcols!(df, 13, :Diver => false)
-    notindtrangerowindices = Int[]
+    # notindtrangerowindices = Int[]
+    notin = Int[]
     for i in 1:size(df, 1)
         wavfile = df[i, :Timestamp]
         dir = join([wavfile[1:4], wavfile[5:6]], "-")
         dt = DateTime(wavfile[1:end-4], "yyyymmddTHHMMSS")
         if !(dt >= dtrange[1] && dt <= dtrange[2])
-            push!(notindtrangerowindices, i)
+            i ∉ notin && push!(notin, i)
         end
         df[i,:Datetime] = dt
-        df[i,:Timestamp] = joinpath(joinpath(pathtmp, dir), wavfile)
+        wavpath = joinpath(pathtmp, dir, wavfile)
+        if filesize(wavpath) == 0
+            i ∉ notin && push!(notin, i)
+        end
+        df[i,:Timestamp] = wavpath#joinpath(joinpath(pathtmp, dir), wavfile)
         if !ismissing(df[i, Symbol(" Depth(M)")]) && df[i, Symbol(" Depth(M)")] < 0.0 
             df[i, Symbol(" Depth(M)")] = missing
         end
@@ -224,7 +229,7 @@ function revisedf!(df, logpath, dtrange, acousticsensor, sitediverdf)
     end
     select!(df, Not(Symbol.(delcolnames)))
     rename!(df, COLUMNNAMES)
-    delete!(df, notindtrangerowindices)
+    delete!(df, notin)
     categorical!(df, :Moonphase)
     df
 end
