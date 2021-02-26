@@ -25,6 +25,8 @@ DTRANGES = Dict(
     paths = getpaths(root)
     sites = [["site-1", "site-1", "site-1", "site-1"], 
              ["site-2", "site-2", "site-2", "site-2"]]
+    sensors = [["LS1-123456","LS1-123456","LS1-123456","LS1-123456"],
+               ["LS1-234567","LS1-234567","LS1-234567","LS1-234567"]]
     depth = [0.06, 0.06, 0.06, 0.02]
     temperature = [27.87, 28.28, 28.29, 27.29]
     red = [3827.0, 645.0, 644.0, 620.0]
@@ -32,9 +34,10 @@ DTRANGES = Dict(
     blue = [3376.0, 712.0, 710.0, 601.0]
     mp = [3, 3, 3, 3]
     divers = [[true, false, false, false], [false, false, false, true]]
-    for (path, site, sensitivity, gain, diver) ∈ zip(paths, sites, sensitivities, gains, divers)
+    for (path, site, sensor, sensitivity, gain, diver) ∈ zip(paths, sites, sensors, sensitivities, gains, divers)
         mdatadf = MSRDPReefs._metadata(path, dtranges)
         @test mdatadf.Site == site
+        @test mdatadf.Sensor == sensor
         @test mdatadf[!,:Sensitivity] == sensitivity
         @test mdatadf[!,:Gain] == gain
         @test mdatadf[!,:Depth] == depth

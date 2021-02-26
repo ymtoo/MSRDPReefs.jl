@@ -60,6 +60,7 @@ const SITEDTRANGES = Dict(
 
 const COLUMNNAMES = ["Datetime", 
                      "Site",
+                     "Sensor",
                      "Sensitivity",
                      "Gain",
                      "Wavpath", 
@@ -72,6 +73,7 @@ const COLUMNNAMES = ["Datetime",
                      "Moonphase",
                      "Diver"]
 const COLUMNTYPES = [DateTime[], 
+                     String[],
                      String[],
                      Float64[],
                      Float64[],
@@ -86,6 +88,7 @@ const COLUMNTYPES = [DateTime[],
                      Bool[]]
 
 const WAVFILETIMELENGTH = Minute(5)
+const HEADER = 4 # log data starts at 4th row
 
 """
     getpaths(rootpath)
@@ -104,6 +107,7 @@ getpaths(rootpath::AbstractString) = [joinpath(rootpath, dir) for dir in
 Get metadata in DataFrame of data collected at a particular site.
 - Datetime
 - Site
+- Sensor
 - Sensitivity
 - Gain
 - Wavpath
@@ -141,14 +145,14 @@ function _metadata(path::AbstractString,
     sitediverdf = @view diverdf[diverdf.Site .== site,:]
     df = DataFrame(columns)
     for (logpath, dtrange) in zip(logpaths, dtranges)
-        dftmp = CSV.File(logpath; header=3, types=Dict("Timestamp" => String, 
+        dftmp = CSV.File(logpath; header=HEADER, types=Dict("Timestamp" => String, 
                                                        " Batt (V)" => Union{Missing, Float64}, 
                                                        " Depth(M)" => Union{Missing, Float64}, 
                                                        " Temp (degC)" => Union{Missing, Float64}, 
                                                        " Red " => Union{Missing, Float64}, 
                                                        " Green " => Union{Missing, Float64}, 
                                                        " Blue " => Union{Missing, Float64})) |> DataFrame
-        acousticsensor = DataFrame(CSV.File(logpath; header=0, delim=" ", limit=2))[:,2]
+        acousticsensor = DataFrame(CSV.File(logpath; header=0, delim=" ", limit=3))[:,2]
         revisedf!(dftmp, logpath, dtrange, acousticsensor, sitediverdf)
         append!(df, dftmp)
     end
@@ -189,13 +193,14 @@ function revisedf!(df, logpath, dtrange, acousticsensor, sitediverdf)
     numrows = size(df, 1)
     insertcols!(df, 1, :Datetime => DateTime(2019, 6, 1, 0, 0, 0))
     insertcols!(df, 2, :Site => site)
-    insertcols!(df, 3, :Sensitivity => acousticsensor[1])
-    insertcols!(df, 4, :Gain => acousticsensor[2])
-    insertcols!(df, 9, :Redlight => Vector{Union{Missing,Float64}}(undef, numrows))
-    insertcols!(df, 10, :Greenlight => Vector{Union{Missing,Float64}}(undef, numrows))
-    insertcols!(df, 11, :Bluelight => Vector{Union{Missing,Float64}}(undef, numrows))
-    insertcols!(df, 12, :Moonphase => 0)
-    insertcols!(df, 13, :Diver => false)
+    insertcols!(df, 3, :Sensor => acousticsensor[1])
+    insertcols!(df, 4, :Sensitivity => parse(Float64, acousticsensor[2]))
+    insertcols!(df, 5, :Gain => parse(Float64, acousticsensor[3]))
+    insertcols!(df, 10, :Redlight => Vector{Union{Missing,Float64}}(undef, numrows))
+    insertcols!(df, 11, :Greenlight => Vector{Union{Missing,Float64}}(undef, numrows))
+    insertcols!(df, 12, :Bluelight => Vector{Union{Missing,Float64}}(undef, numrows))
+    insertcols!(df, 13, :Moonphase => 0)
+    insertcols!(df, 14, :Diver => false)
     # notindtrangerowindices = Int[]
     notin = Int[]
     for i in 1:size(df, 1)
@@ -231,6 +236,7 @@ function revisedf!(df, logpath, dtrange, acousticsensor, sitediverdf)
     rename!(df, COLUMNNAMES)
     delete!(df, notin)
     categorical!(df, :Moonphase)
+    #transform!(df, :Moonphase => categorical; renamecols=false)
     df
 end
 
@@ -367,7 +373,7 @@ function datacollectionprogress(paths::AbstractVector{String})
         push!(x, site)
         for p in readdir(path)
             if isfile(joinpath(path, p, "LOG.CSV"))
-                logdf = CSV.read(joinpath(path, p, "LOG.CSV"), DataFrame; header=3)
+                logdf = CSV.read(joinpath(path, p, "LOG.CSV"), DataFrame; header=HEADER)
                 startwavfile = logdf[:, 1][1]
                 endwavfile = logdf[:, 1][end]
                 percent = Dates.value(DateTime(endwavfile[1:end-4], "yyyymmddTHHMMSS")-DateTime(startwavfile[1:end-4], "yyyymmddTHHMMSS"))/2592000000*100
