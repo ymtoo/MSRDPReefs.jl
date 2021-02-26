@@ -124,15 +124,15 @@ Get metadata in DataFrame of data collected at a particular site.
 julia> df = MSRDPReefs._metadata("/home/arl/Data/reefwatch/recordings/Hantu-W");
 
 julia> first(df, 5)
-5×13 DataFrame
-│ Row │ Datetime            │ Site    │ Sensitivity │ Gain    │ Wavpath                                                                         │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │ Diver │
-│     │ Dates.DateTime      │ String  │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │ Bool  │
-├─────┼─────────────────────┼─────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┼───────┤
-│ 1   │ 2019-09-11T13:02:08 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │ 0     │
-│ 2   │ 2019-09-11T13:07:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │ 0     │
-│ 3   │ 2019-09-11T13:12:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │ 0     │
-│ 4   │ 2019-09-11T13:17:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │ 0     │
-│ 5   │ 2019-09-11T13:22:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │ 0     │
+5×14 DataFrame
+│ Row │ Datetime            │ Site    │ Sensor     │ Sensitivity │ Gain    │ Wavpath                                                                         │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │ Diver │
+│     │ DateTime            │ String  │ String     │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │ Bool  │
+├─────┼─────────────────────┼─────────┼────────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┼───────┤
+│ 1   │ 2019-09-11T13:02:08 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │ 0     │
+│ 2   │ 2019-09-11T13:07:07 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │ 0     │
+│ 3   │ 2019-09-11T13:12:07 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │ 0     │
+│ 4   │ 2019-09-11T13:17:07 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │ 0     │
+│ 5   │ 2019-09-11T13:22:07 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │ 0     │
 ```
 """
 function _metadata(path::AbstractString, 
@@ -262,26 +262,26 @@ Get metadata in DataFrame of data collected at multiple sites.
 julia> df = metadata(["/home/arl/Data/reefwatch/recordings/Hantu-W","/home/arl/Data/reefwatch/recordings/RL-W"]);
 
 julia> first(df, 5)
-5×13 DataFrame
-│ Row │ Datetime            │ Site    │ Sensitivity │ Gain    │ Wavpath                                                                         │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │ Diver │
-│     │ Dates.DateTime      │ String  │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │ Bool  │
-├─────┼─────────────────────┼─────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┼───────┤
-│ 1   │ 2019-09-11T13:02:08 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │ 0     │
-│ 2   │ 2019-09-11T13:07:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │ 0     │
-│ 3   │ 2019-09-11T13:12:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │ 0     │
-│ 4   │ 2019-09-11T13:17:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │ 0     │
-│ 5   │ 2019-09-11T13:22:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │ 0     │
+5×14 DataFrame
+│ Row │ Datetime            │ Site    │ Sensor     │ Sensitivity │ Gain    │ Wavpath                                                                         │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │ Diver │
+│     │ DateTime            │ String  │ String     │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │ Bool  │
+├─────┼─────────────────────┼─────────┼────────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┼───────┤
+│ 1   │ 2019-09-11T13:02:08 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │ 0     │
+│ 2   │ 2019-09-11T13:07:07 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │ 0     │
+│ 3   │ 2019-09-11T13:12:07 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │ 0     │
+│ 4   │ 2019-09-11T13:17:07 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │ 0     │
+│ 5   │ 2019-09-11T13:22:07 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │ 0     │
 
 julia> last(df, 5)
-5×13 DataFrame
-│ Row │ Datetime            │ Site   │ Sensitivity │ Gain    │ Wavpath                                                                      │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │ Diver │
-│     │ Dates.DateTime      │ String │ Float64     │ Float64 │ String                                                                       │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │ Bool  │
-├─────┼─────────────────────┼────────┼─────────────┼─────────┼──────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┼───────┤
-│ 1   │ 2020-09-11T08:39:15 │ RL-W   │ -179.9      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-08/2020-09/20200911T083915.wav │ 3.76     │ 2.43     │ 29.64       │ 282.0    │ 509.0      │ 283.0     │ 8         │ 0     │
-│ 2   │ 2020-09-11T08:44:16 │ RL-W   │ -179.9      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-08/2020-09/20200911T084416.wav │ 3.77     │ 2.42     │ 29.66       │ 291.0    │ 527.0      │ 293.0     │ 8         │ 0     │
-│ 3   │ 2020-09-11T08:49:17 │ RL-W   │ -179.9      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-08/2020-09/20200911T084917.wav │ 3.77     │ 2.41     │ 29.65       │ 297.0    │ 548.0      │ 310.0     │ 8         │ 0     │
-│ 4   │ 2020-09-11T08:54:18 │ RL-W   │ -179.9      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-08/2020-09/20200911T085418.wav │ 3.78     │ 2.42     │ 29.65       │ 322.0    │ 594.0      │ 331.0     │ 8         │ 0     │
-│ 5   │ 2020-09-11T08:59:19 │ RL-W   │ -179.9      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-08/2020-09/20200911T085919.wav │ 3.79     │ 2.39     │ 29.62       │ 342.0    │ 634.0      │ 352.0     │ 8         │ 0     │
+5×14 DataFrame
+│ Row │ Datetime            │ Site   │ Sensor     │ Sensitivity │ Gain    │ Wavpath                                                                      │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │ Diver │
+│     │ DateTime            │ String │ String     │ Float64     │ Float64 │ String                                                                       │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │ Bool  │
+├─────┼─────────────────────┼────────┼────────────┼─────────────┼─────────┼──────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┼───────┤
+│ 1   │ 2020-12-14T09:38:16 │ RL-W   │ LS1-437783 │ -180.0      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-11/2020-12/20201214T093816.wav │ 3.76     │ 4.2      │ 28.77       │ 677.0    │ 1457.0     │ 833.0     │ 8         │ 0     │
+│ 2   │ 2020-12-14T09:43:16 │ RL-W   │ LS1-437783 │ -180.0      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-11/2020-12/20201214T094316.wav │ 3.81     │ 4.2      │ 28.78       │ 635.0    │ 1345.0     │ 782.0     │ 8         │ 0     │
+│ 3   │ 2020-12-14T09:48:16 │ RL-W   │ LS1-437783 │ -180.0      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-11/2020-12/20201214T094816.wav │ 3.85     │ 4.25     │ 28.78       │ 822.0    │ 1774.0     │ 1029.0    │ 8         │ 0     │
+│ 4   │ 2020-12-14T09:53:16 │ RL-W   │ LS1-437783 │ -180.0      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-11/2020-12/20201214T095316.wav │ 3.81     │ 4.22     │ 28.78       │ 861.0    │ 1854.0     │ 1077.0    │ 8         │ 0     │
+│ 5   │ 2020-12-14T09:58:17 │ RL-W   │ LS1-437783 │ -180.0      │ 16.77   │ /home/arl/Data/reefwatch/recordings/RL-W/2020-11/2020-12/20201214T095817.wav │ 3.82     │ 4.26     │ 28.78       │ 865.0    │ 1871.0     │ 1088.0    │ 8         │ 0     │
 ```
 """
 function metadata(paths::Vector{String}, 
@@ -318,15 +318,15 @@ Get metadata in DataFrame of data collected at all the sites.
 julia> df = metadata("/home/arl/Data/reefwatch/recordings");
 
 julia> first(df, 5)
-5×13 DataFrame
-│ Row │ Datetime            │ Site    │ Sensitivity │ Gain    │ Wavpath                                                                         │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │ Diver │
-│     │ Dates.DateTime      │ String  │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │ Bool  │
-├─────┼─────────────────────┼─────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┼───────┤
-│ 1   │ 2019-09-11T13:02:08 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │ 0     │
-│ 2   │ 2019-09-11T13:07:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │ 0     │
-│ 3   │ 2019-09-11T13:12:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │ 0     │
-│ 4   │ 2019-09-11T13:17:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │ 0     │
-│ 5   │ 2019-09-11T13:22:07 │ Hantu-W │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │ 0     │
+5×14 DataFrame
+│ Row │ Datetime            │ Site    │ Sensor     │ Sensitivity │ Gain    │ Wavpath                                                                         │ Battery  │ Depth    │ Temperature │ Redlight │ Greenlight │ Bluelight │ Moonphase │ Diver │
+│     │ DateTime            │ String  │ String     │ Float64     │ Float64 │ String                                                                          │ Float64? │ Float64? │ Float64?    │ Float64? │ Float64?   │ Float64?  │ Int64     │ Bool  │
+├─────┼─────────────────────┼─────────┼────────────┼─────────────┼─────────┼─────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────┼─────────────┼──────────┼────────────┼───────────┼───────────┼───────┤
+│ 1   │ 2019-09-11T13:02:08 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130208.wav │ 4.31     │ 2.61     │ 30.3        │ 6303.0   │ 10794.0    │ 6907.0    │ 5         │ 0     │
+│ 2   │ 2019-09-11T13:07:07 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T130707.wav │ 4.3      │ 2.6      │ 30.28       │ 6911.0   │ 10755.0    │ 7262.0    │ 5         │ 0     │
+│ 3   │ 2019-09-11T13:12:07 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131207.wav │ 4.3      │ 2.56     │ 30.21       │ 6407.0   │ 10623.0    │ 6929.0    │ 5         │ 0     │
+│ 4   │ 2019-09-11T13:17:07 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T131707.wav │ 4.28     │ 2.54     │ 30.22       │ 6008.0   │ 10385.0    │ 6814.0    │ 5         │ 0     │
+│ 5   │ 2019-09-11T13:22:07 │ Hantu-W │ LS1-437902 │ -179.8      │ 16.77   │ /home/arl/Data/reefwatch/recordings/Hantu-W/2019-09/2019-09/20190911T132207.wav │ 4.28     │ 2.51     │ 30.23       │ 6227.0   │ 10614.0    │ 6899.0    │ 5         │ 0     │
 
 julia> unique(df.Site)
 10-element Array{String,1}:
@@ -360,8 +360,8 @@ julia> datacollectionprogress(["/home/arl/Data/reefwatch/recordings/Hantu-W",
 │ Row │ Site    │ D1 (%)  │ D2 (%)  │ D3 (%)  │ D4 (%)  │ D5 (%)  │ D6 (%)  │
 │     │ String  │ Real?   │ Real?   │ Real?   │ Real?   │ Real?   │ Real?   │
 ├─────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-│ 1   │ Hantu-W │ 100.788 │ 128.408 │ 77.8376 │ 103.189 │ missing │ missing │
-│ 2   │ RL-W    │ 83.6276 │ 128.501 │ 116.384 │ missing │ missing │ missing │
+│ 1   │ Hantu-W │ 100.788 │ 128.408 │ 77.8376 │ 103.189 │ 112.21  │ missing │
+│ 2   │ RL-W    │ 83.6276 │ 128.501 │ 116.384 │ 103.324 │ missing │ missing │
 ```
 """
 function datacollectionprogress(paths::AbstractVector{String})
@@ -402,12 +402,12 @@ julia> datacollectionprogress("/home/arl/Data/reefwatch/recordings")
 │ Row │ Site       │ D1 (%)  │ D2 (%)  │ D3 (%)  │ D4 (%)  │ D5 (%)  │ D6 (%)  │
 │     │ String     │ Real?   │ Real?   │ Real?   │ Real?   │ Real?   │ Real?   │
 ├─────┼────────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-│ 1   │ Hantu-W    │ 100.788 │ 128.408 │ 77.8376 │ 103.189 │ missing │ missing │
+│ 1   │ Hantu-W    │ 100.788 │ 128.408 │ 77.8376 │ 103.189 │ 112.21  │ missing │
 │ 2   │ Jong-S     │ 100.811 │ 116.446 │ 103.188 │ missing │ missing │ missing │
 │ 3   │ Kusu-NE    │ 100.452 │ 116.518 │ 103.32  │ missing │ missing │ missing │
 │ 4   │ RL-W       │ 83.6276 │ 128.501 │ 116.384 │ 103.324 │ missing │ missing │
-│ 5   │ SD-NW      │ 33.1604 │ 44.6388 │ 103.184 │ 103.181 │ missing │ missing │
-│ 6   │ SL-SE      │ 44.5767 │ 103.188 │ missing │ missing │ missing │ missing │
+│ 5   │ SD-NW      │ 33.1604 │ 44.6388 │ 103.184 │ 103.181 │ 119.79  │ missing │
+│ 6   │ SL-SE      │ 44.5767 │ 103.188 │ 115.685 │ missing │ missing │ missing │
 │ 7   │ Semakau-NW │ 128.225 │ 116.374 │ 103.11  │ missing │ missing │ missing │
 │ 8   │ Semakau-SW │ 18.9137 │ 4.374   │ 103.383 │ missing │ missing │ missing │
 │ 9   │ Seringat   │ 90.5111 │ 51.5231 │ 106.451 │ 103.187 │ missing │ missing │
