@@ -102,6 +102,29 @@ Count the number of detected episodic signals.
 """
 countepisodic(epidf::DataFrame) = sum(length.(epidf[:, :startind]))
 
+"""
+Get metadata of episodic signals.
+"""
+function getepisodicmetadata(root::AbstractString)
+    df = DataFrame(site=String[],
+                   wavpath=String[],
+                   savepath=String[],
+                   datetime=DateTime[],
+                   start=Float64[],
+                   stop=Float64[],
+                   score=Float64[])
+    for f ∈ readdir(root; join=true)
+        for subf ∈ readdir(f; join=true)
+            for p ∈ readdir(subf; join=true)
+                if last(splitext(p)) == ".csv"
+                    append!(df, CSV.read(p, DataFrame))
+                end
+            end
+        end
+    end
+    df
+end
+
 
 """
 Treat segments of WAV files (detected episodic signals in a dataframe) as a lazy vector of vectors stored on disk.

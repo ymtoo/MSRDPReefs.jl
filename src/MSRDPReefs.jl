@@ -45,7 +45,8 @@ export
     # episodic
     findepisodic,
     load_peakdetect,
-    countepisodic
+    countepisodic,
+    getepisodicmetadata
 
 include("utils.jl")
 include("data.jl")
